@@ -7,6 +7,7 @@ import {
 } from './controllers/users/authenticate'
 import { verifyJWT } from './middlewares/verify-jwt'
 import { profile } from './controllers/users/profile'
+import { refresh } from './controllers/users/refresh'
 
 export async function appRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
@@ -33,6 +34,18 @@ export async function appRoutes(appFastify: FastifyInstance) {
     },
     authenticate,
   )
+  app.patch(
+    '/token/refresh',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Auth'],
+        summary: 'Refresh',
+      },
+    },
+    refresh,
+  )
+
   /** Authenticated */
 
   app.post(
