@@ -11,6 +11,7 @@ import {
   validatorCompiler,
   ZodTypeProvider,
 } from 'fastify-type-provider-zod'
+import fastifyCookie from '@fastify/cookie'
 
 export const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -43,7 +44,16 @@ app.register(fastifySwaggerUi, {
 
 app.register(fastifyJwt, {
   secret: env.JWT_SECRET,
+  cookie: {
+    cookieName: 'refreshToken',
+    signed: false,
+  },
+  sign: {
+    expiresIn: '10m',
+  },
 })
+
+app.register(fastifyCookie)
 
 app.register(appRoutes)
 
