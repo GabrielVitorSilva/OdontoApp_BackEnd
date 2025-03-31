@@ -5,9 +5,13 @@ import {
   authenticate,
   authenticateBodySchema,
 } from './controllers/users/authenticate'
+import { verifyJWT } from './middlewares/verify-jwt'
+import { profile } from './controllers/users/profile'
 
-export async function appRoutes(app: FastifyInstance) {
-  app.withTypeProvider<ZodTypeProvider>().post(
+export async function appRoutes(appFastify: FastifyInstance) {
+  const app = appFastify.withTypeProvider<ZodTypeProvider>()
+
+  app.post(
     '/users',
     {
       schema: {
@@ -18,7 +22,7 @@ export async function appRoutes(app: FastifyInstance) {
     },
     register,
   )
-  app.withTypeProvider<ZodTypeProvider>().post(
+  app.post(
     '/sessions',
     {
       schema: {
@@ -30,4 +34,21 @@ export async function appRoutes(app: FastifyInstance) {
     authenticate,
   )
   /** Authenticated */
+
+  app.post(
+    '/me',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['User'],
+        summary: 'Get User Profile',
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    profile,
+  )
 }
