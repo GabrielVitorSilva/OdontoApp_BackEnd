@@ -21,8 +21,9 @@ app.setValidatorCompiler(validatorCompiler)
 app.register(fastifySwagger, {
   openapi: {
     info: {
-      title: 'Next.js SaaS',
-      description: 'Full-stack SaaS with multi-tenant & RBAC.',
+      title: 'OdontoApp',
+      description:
+        'Back end do OdontoApp, aplicativo desenvolvido na disciplina de engenharia de software.',
       version: '1.0.0',
     },
     components: {
