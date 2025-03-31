@@ -3,29 +3,29 @@ import { makeRegisterUseCase } from '@/use-cases/@factories/make-register-use-ca
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 
-export async function register(request: FastifyRequest, reply: FastifyReply) {
-  const registerBodySchema = z.object({
-    name: z.string(),
-    email: z.string().email(),
-    cpf: z
-      .string()
-      .length(11, { message: 'O CPF deve ter exatamente 11 números.' })
-      .regex(/^\d+$/, { message: 'O CPF deve conter apenas números.' }),
-    password: z
-      .string()
-      .min(6, { message: 'A senha deve ter no mínimo 6 caracteres.' })
-      .regex(/[A-Z]/, {
-        message: 'A senha deve conter pelo menos uma letra maiúscula.',
-      })
-      .regex(/[a-z]/, {
-        message: 'A senha deve conter pelo menos uma letra minúscula.',
-      })
-      .regex(/[!@#$%^&*(),.?":{}|<>]/, {
-        message: 'A senha deve conter pelo menos um caractere especial.',
-      }),
-    role: z.enum(['ADMIN', 'PROFESSIONAL', 'CLIENT']),
-  })
+export const registerBodySchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  cpf: z
+    .string()
+    .length(11, { message: 'O CPF deve ter exatamente 11 números.' })
+    .regex(/^\d+$/, { message: 'O CPF deve conter apenas números.' }),
+  password: z
+    .string()
+    .min(6, { message: 'A senha deve ter no mínimo 6 caracteres.' })
+    .regex(/[A-Z]/, {
+      message: 'A senha deve conter pelo menos uma letra maiúscula.',
+    })
+    .regex(/[a-z]/, {
+      message: 'A senha deve conter pelo menos uma letra minúscula.',
+    })
+    .regex(/[!@#$%^&*(),.?":{}|<>]/, {
+      message: 'A senha deve conter pelo menos um caractere especial.',
+    }),
+  role: z.enum(['ADMIN', 'PROFESSIONAL', 'CLIENT']),
+})
 
+export async function register(request: FastifyRequest, reply: FastifyReply) {
   const { name, email, cpf, password, role } = registerBodySchema.parse(
     request.body,
   )
