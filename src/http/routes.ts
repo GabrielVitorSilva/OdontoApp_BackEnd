@@ -13,17 +13,6 @@ export async function appRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
 
   app.post(
-    '/users',
-    {
-      schema: {
-        tags: ['Auth'],
-        summary: 'Create a new account',
-        body: registerBodySchema,
-      },
-    },
-    register,
-  )
-  app.post(
     '/sessions',
     {
       schema: {
@@ -34,6 +23,25 @@ export async function appRoutes(appFastify: FastifyInstance) {
     },
     authenticate,
   )
+
+  app.post(
+    '/register',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Auth'],
+        summary: 'Register a new user',
+        body: registerBodySchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    register,
+  )
+
   app.patch(
     '/token/refresh',
     {
@@ -41,6 +49,11 @@ export async function appRoutes(appFastify: FastifyInstance) {
       schema: {
         tags: ['Auth'],
         summary: 'Refresh',
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
       },
     },
     refresh,

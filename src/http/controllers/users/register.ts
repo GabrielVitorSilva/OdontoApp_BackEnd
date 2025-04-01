@@ -1,3 +1,4 @@
+import { NotAllowedToCreate } from '@/use-cases/@errors/not-allowed-to-create'
 import { UserAlreadyExistsError } from '@/use-cases/@errors/user-already-exists-error'
 import { makeRegisterUseCase } from '@/use-cases/@factories/make-register-use-case'
 import { FastifyReply, FastifyRequest } from 'fastify'
@@ -29,6 +30,9 @@ export async function register(request: FastifyRequest, reply: FastifyReply) {
   const { name, email, cpf, password, role } = registerBodySchema.parse(
     request.body,
   )
+
+  const authenticatedUserId = request.user.sub
+
   try {
     const registerUseCase = makeRegisterUseCase()
     await registerUseCase.execute({
@@ -37,12 +41,16 @@ export async function register(request: FastifyRequest, reply: FastifyReply) {
       cpf,
       password,
       role,
+      authenticatedUserId,
     })
   } catch (error) {
     if (error instanceof UserAlreadyExistsError) {
       return reply.status(409).send({ message: error.message })
     }
 
+    if (error instanceof NotAllowedToCreate) {
+      return reply.status(409).send({ message: error.message })
+    }
     throw error
   }
 
