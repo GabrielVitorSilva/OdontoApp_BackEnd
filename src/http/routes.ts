@@ -12,6 +12,28 @@ import {
   registerClient,
   registerClientBodySchema,
 } from './controllers/users/register-client'
+import {
+  createTreatment,
+  createTreatmentBodySchema,
+} from './controllers/treatments/create-treatment'
+import {
+  getTreatment,
+  getTreatmentParamsSchema,
+} from './controllers/treatments/get-treatment'
+import { listTreatments } from './controllers/treatments/list-treatments'
+import {
+  listTreatmentsByProfessional,
+  listTreatmentsByProfessionalParamsSchema,
+} from './controllers/treatments/list-treatments-by-professional'
+import {
+  updateTreatment,
+  updateTreatmentBodySchema,
+  updateTreatmentParamsSchema,
+} from './controllers/treatments/update-treatment'
+import {
+  deleteTreatment,
+  deleteTreatmentParamsSchema,
+} from './controllers/treatments/delete-treatment'
 
 export async function appRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
@@ -92,5 +114,115 @@ export async function appRoutes(appFastify: FastifyInstance) {
       },
     },
     profile,
+  )
+
+  /** Treatments */
+
+  app.post(
+    '/treatments',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Treatments'],
+        summary: 'Create a new treatment',
+        body: createTreatmentBodySchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    createTreatment,
+  )
+
+  app.get(
+    '/treatments',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Treatments'],
+        summary: 'List all treatments',
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    listTreatments,
+  )
+
+  app.get(
+    '/treatments/:id',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Treatments'],
+        summary: 'Get treatment by ID',
+        params: getTreatmentParamsSchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    getTreatment,
+  )
+
+  app.get(
+    '/professionals/:professionalId/treatments',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Treatments'],
+        summary: 'List treatments by professional',
+        params: listTreatmentsByProfessionalParamsSchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    listTreatmentsByProfessional,
+  )
+
+  app.put(
+    '/treatments/:id',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Treatments'],
+        summary: 'Update a treatment',
+        params: updateTreatmentParamsSchema,
+        body: updateTreatmentBodySchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    updateTreatment,
+  )
+
+  app.delete(
+    '/treatments/:id',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Treatments'],
+        summary: 'Delete a treatment',
+        params: deleteTreatmentParamsSchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    deleteTreatment,
   )
 }
