@@ -14,30 +14,31 @@ describe('Create Treatment Use Case', () => {
   it('should be able to create a treatment', async () => {
     const { treatment } = await sut.execute({
       name: 'Limpeza',
-      description: 'Limpeza dentária profissional',
-      durationMinutes: 45,
-      price: 120,
-      professionalId: 'professional-1',
+      description: 'Limpeza dos dentes',
+      durationMinutes: 30,
+      price: 100,
     })
 
     expect(treatment.id).toEqual(expect.any(String))
-    expect(treatment.name).toEqual('Limpeza')
-    expect(treatment.description).toEqual('Limpeza dentária profissional')
-    expect(treatment.durationMinutes).toEqual(45)
-    expect(treatment.price).toEqual(120)
-    expect(treatment.professionalId).toEqual('professional-1')
+    expect(treatment.name).toBe('Limpeza')
+    expect(treatment.description).toBe('Limpeza dos dentes')
+    expect(treatment.durationMinutes).toBe(30)
+    expect(treatment.price).toBe(100)
   })
 
-  it('should be able to create a treatment without description', async () => {
+  it('should be able to create a treatment with professionals', async () => {
     const { treatment } = await sut.execute({
       name: 'Limpeza',
-      durationMinutes: 45,
-      price: 120,
-      professionalId: 'professional-1',
+      description: 'Limpeza dos dentes',
+      durationMinutes: 30,
+      price: 100,
+      professionalIds: ['professional-1', 'professional-2'],
     })
 
     expect(treatment.id).toEqual(expect.any(String))
-    expect(treatment.name).toEqual('Limpeza')
-    expect(treatment.description).toBeNull()
+    expect(treatment.name).toBe('Limpeza')
+    expect(treatment.description).toBe('Limpeza dos dentes')
+    expect(treatment.durationMinutes).toBe(30)
+    expect(treatment.price).toBe(100)
   })
 })

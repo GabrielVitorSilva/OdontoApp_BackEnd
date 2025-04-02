@@ -6,7 +6,7 @@ interface CreateTreatmentUseCaseRequest {
   description?: string
   durationMinutes: number
   price: number
-  professionalId: string
+  professionalIds?: string[]
 }
 
 interface CreateTreatmentUseCaseResponse {
@@ -21,18 +21,18 @@ export class CreateTreatmentUseCase {
     description,
     durationMinutes,
     price,
-    professionalId,
+    professionalIds,
   }: CreateTreatmentUseCaseRequest): Promise<CreateTreatmentUseCaseResponse> {
     const treatment = await this.treatmentsRepository.create({
       name,
       description,
       durationMinutes,
       price,
-      professional: {
-        connect: {
-          id: professionalId,
-        },
-      },
+      professionals: professionalIds
+        ? {
+            connect: professionalIds.map((id) => ({ id })),
+          }
+        : undefined,
     })
 
     return { treatment }

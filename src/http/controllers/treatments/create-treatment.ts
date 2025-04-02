@@ -14,14 +14,16 @@ export const createTreatmentBodySchema = z.object({
   price: z
     .number()
     .positive({ message: 'O preço deve ser um valor positivo.' }),
-  professionalId: z.string().uuid({ message: 'ID de profissional inválido.' }),
+  professionalIds: z
+    .array(z.string().uuid({ message: 'ID de profissional inválido.' }))
+    .optional(),
 })
 
 export async function createTreatment(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const { name, description, durationMinutes, price, professionalId } =
+  const { name, description, durationMinutes, price, professionalIds } =
     createTreatmentBodySchema.parse(request.body)
 
   try {
@@ -32,7 +34,7 @@ export async function createTreatment(
       description,
       durationMinutes,
       price,
-      professionalId,
+      professionalIds,
     })
 
     return reply.status(201).send({ treatment })

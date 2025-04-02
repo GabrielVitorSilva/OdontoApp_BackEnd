@@ -34,7 +34,7 @@ export class InMemoryTreatmentsRepository implements TreatmentsRepository {
       description: data.description ?? null,
       durationMinutes: data.durationMinutes,
       price: data.price,
-      professionalId: data.professional.connect?.id ?? '',
+      professionalId: data.professionals?.connect?.[0]?.id ?? '',
       createdAt: new Date(),
       updatedAt: new Date(),
     }
@@ -50,23 +50,21 @@ export class InMemoryTreatmentsRepository implements TreatmentsRepository {
   ): Promise<Treatment> {
     const treatmentIndex = this.items.findIndex((item) => item.id === id)
 
-    if (treatmentIndex >= 0) {
-      const treatment = this.items[treatmentIndex]
+    if (treatmentIndex === -1) {
+      throw new Error('Treatment not found.')
+    }
 
-      this.items[treatmentIndex] = {
-        ...treatment,
-        name: data.name !== undefined ? String(data.name) : treatment.name,
-        description:
-          data.description !== undefined
-            ? String(data.description)
-            : treatment.description,
-        durationMinutes:
-          data.durationMinutes !== undefined
-            ? Number(data.durationMinutes)
-            : treatment.durationMinutes,
-        price: data.price !== undefined ? Number(data.price) : treatment.price,
-        updatedAt: new Date(),
-      }
+    const treatment = this.items[treatmentIndex]
+
+    this.items[treatmentIndex] = {
+      ...treatment,
+      name: data.name ?? treatment.name,
+      description: data.description ?? treatment.description,
+      durationMinutes: data.durationMinutes ?? treatment.durationMinutes,
+      price: data.price ?? treatment.price,
+      professionalId:
+        data.professionals?.connect?.[0]?.id ?? treatment.professionalId,
+      updatedAt: new Date(),
     }
 
     return this.items[treatmentIndex]
@@ -75,8 +73,48 @@ export class InMemoryTreatmentsRepository implements TreatmentsRepository {
   async delete(id: string): Promise<void> {
     const treatmentIndex = this.items.findIndex((item) => item.id === id)
 
-    if (treatmentIndex >= 0) {
-      this.items.splice(treatmentIndex, 1)
+    if (treatmentIndex === -1) {
+      throw new Error('Treatment not found.')
     }
+
+    this.items.splice(treatmentIndex, 1)
+  }
+
+  async addProfessional(
+    treatmentId: string,
+    professionalId: string,
+  ): Promise<Treatment> {
+    const treatmentIndex = this.items.findIndex(
+      (item) => item.id === treatmentId,
+    )
+
+    if (treatmentIndex === -1) {
+      throw new Error('Treatment not found.')
+    }
+
+    const treatment = this.items[treatmentIndex]
+    treatment.professionalId = professionalId
+    treatment.updatedAt = new Date()
+
+    return treatment
+  }
+
+  async removeProfessional(
+    treatmentId: string,
+    professionalId: string,
+  ): Promise<Treatment> {
+    const treatmentIndex = this.items.findIndex(
+      (item) => item.id === treatmentId,
+    )
+
+    if (treatmentIndex === -1) {
+      throw new Error('Treatment not found.')
+    }
+
+    const treatment = this.items[treatmentIndex]
+    treatment.professionalId = ''
+    treatment.updatedAt = new Date()
+
+    return treatment
   }
 }

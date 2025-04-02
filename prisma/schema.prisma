@@ -59,7 +59,7 @@ model Professional {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
 
-  treatments    Treatment[]
+  treatments    Treatment[]    @relation("TreatmentToProfessional")
   consultations Consultation[]
 
   createdAt DateTime @default(now())
@@ -76,15 +76,14 @@ model Administrator {
   updatedAt DateTime @updatedAt()
 }
 
-// Treatment model, related to a Professional
+// Treatment model, related to Professionals
 model Treatment {
-  id              String       @id @default(uuid())
+  id              String         @id @default(uuid())
   name            String
   description     String?
   durationMinutes Int
   price           Float
-  professionalId  String
-  professional    Professional @relation(fields: [professionalId], references: [id])
+  professionals   Professional[] @relation("TreatmentToProfessional")
 
   consultations Consultation[]
 

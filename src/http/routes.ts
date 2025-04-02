@@ -45,6 +45,14 @@ import {
   deleteUserParamsSchema,
 } from './controllers/users/delete-user'
 import { listUsers } from './controllers/users/list-users'
+import {
+  addProfessionalToTreatment,
+  addProfessionalToTreatmentParamsSchema,
+} from './controllers/treatments/add-professional-to-treatment'
+import {
+  removeProfessionalFromTreatment,
+  removeProfessionalFromTreatmentParamsSchema,
+} from './controllers/treatments/remove-professional-from-treatment'
 
 export async function appRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
@@ -309,5 +317,41 @@ export async function appRoutes(appFastify: FastifyInstance) {
       },
     },
     deleteTreatment,
+  )
+
+  app.post(
+    '/treatments/:treatmentId/professionals/:professionalId',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Treatments'],
+        summary: 'Add a professional to a treatment',
+        params: addProfessionalToTreatmentParamsSchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    addProfessionalToTreatment,
+  )
+
+  app.delete(
+    '/treatments/:treatmentId/professionals/:professionalId',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Treatments'],
+        summary: 'Remove a professional from a treatment',
+        params: removeProfessionalFromTreatmentParamsSchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    removeProfessionalFromTreatment,
   )
 }

@@ -164,23 +164,38 @@ async function seed() {
     },
   ]
 
-  // Criar tratamentos e associá-los aleatoriamente aos profissionais
+  // Criar tratamentos
   for (const treatment of treatments) {
-    // Escolher um profissional aleatório para cada tratamento
-    const randomProfessionalIndex = Math.floor(
-      Math.random() * professionals.length,
-    )
-    const professional = professionals[randomProfessionalIndex]
-
     await prisma.treatment.create({
       data: {
         name: treatment.name,
         description: treatment.description,
         durationMinutes: treatment.durationMinutes,
         price: treatment.price,
-        professionalId: professional.id,
       },
     })
+  }
+
+  // Associar tratamentos aleatoriamente aos profissionais
+  const allTreatments = await prisma.treatment.findMany()
+  for (const professional of professionals) {
+    // Cada profissional terá 2-4 tratamentos aleatórios
+    const numberOfTreatments = Math.floor(Math.random() * 3) + 2
+    const shuffledTreatments = [...allTreatments].sort(
+      () => 0.5 - Math.random(),
+    )
+    const selectedTreatments = shuffledTreatments.slice(0, numberOfTreatments)
+
+    for (const treatment of selectedTreatments) {
+      await prisma.treatment.update({
+        where: { id: treatment.id },
+        data: {
+          professionals: {
+            connect: { id: professional.id },
+          },
+        },
+      })
+    }
   }
 
   // Criar algumas consultas aleatórias

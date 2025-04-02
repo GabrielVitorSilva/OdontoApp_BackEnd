@@ -12,41 +12,30 @@ describe('List Treatments By Professional Use Case', () => {
   })
 
   it('should be able to list treatments by professional id', async () => {
-    await treatmentsRepository.create({
+    const treatment1 = await treatmentsRepository.create({
       name: 'Limpeza',
       description: 'Limpeza dentária profissional',
       durationMinutes: 45,
       price: 120,
-      professional: {
-        connect: {
-          id: 'professional-1',
-        },
-      },
     })
 
-    await treatmentsRepository.create({
+    const treatment2 = await treatmentsRepository.create({
       name: 'Clareamento',
       description: 'Clareamento dental',
       durationMinutes: 60,
       price: 300,
-      professional: {
-        connect: {
-          id: 'professional-1',
-        },
-      },
     })
 
-    await treatmentsRepository.create({
+    const treatment3 = await treatmentsRepository.create({
       name: 'Extração',
       description: 'Extração de dente',
       durationMinutes: 60,
       price: 250,
-      professional: {
-        connect: {
-          id: 'professional-2',
-        },
-      },
     })
+
+    await treatmentsRepository.addProfessional(treatment1.id, 'professional-1')
+    await treatmentsRepository.addProfessional(treatment2.id, 'professional-1')
+    await treatmentsRepository.addProfessional(treatment3.id, 'professional-2')
 
     const { treatments } = await sut.execute({
       professionalId: 'professional-1',

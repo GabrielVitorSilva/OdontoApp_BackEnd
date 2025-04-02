@@ -8,6 +8,9 @@ export class PrismaTreatmentsRepository implements TreatmentsRepository {
       where: {
         id,
       },
+      include: {
+        professionals: true,
+      },
     })
 
     return treatment
@@ -16,7 +19,14 @@ export class PrismaTreatmentsRepository implements TreatmentsRepository {
   async findByProfessionalId(professionalId: string) {
     const treatments = await prisma.treatment.findMany({
       where: {
-        professionalId,
+        professionals: {
+          some: {
+            id: professionalId,
+          },
+        },
+      },
+      include: {
+        professionals: true,
       },
     })
 
@@ -24,13 +34,20 @@ export class PrismaTreatmentsRepository implements TreatmentsRepository {
   }
 
   async findMany() {
-    const treatments = await prisma.treatment.findMany()
+    const treatments = await prisma.treatment.findMany({
+      include: {
+        professionals: true,
+      },
+    })
     return treatments
   }
 
   async create(data: Prisma.TreatmentCreateInput) {
     const treatment = await prisma.treatment.create({
       data,
+      include: {
+        professionals: true,
+      },
     })
 
     return treatment
@@ -42,6 +59,9 @@ export class PrismaTreatmentsRepository implements TreatmentsRepository {
         id,
       },
       data,
+      include: {
+        professionals: true,
+      },
     })
 
     return treatment
@@ -53,5 +73,45 @@ export class PrismaTreatmentsRepository implements TreatmentsRepository {
         id,
       },
     })
+  }
+
+  async addProfessional(treatmentId: string, professionalId: string) {
+    const treatment = await prisma.treatment.update({
+      where: {
+        id: treatmentId,
+      },
+      data: {
+        professionals: {
+          connect: {
+            id: professionalId,
+          },
+        },
+      },
+      include: {
+        professionals: true,
+      },
+    })
+
+    return treatment
+  }
+
+  async removeProfessional(treatmentId: string, professionalId: string) {
+    const treatment = await prisma.treatment.update({
+      where: {
+        id: treatmentId,
+      },
+      data: {
+        professionals: {
+          disconnect: {
+            id: professionalId,
+          },
+        },
+      },
+      include: {
+        professionals: true,
+      },
+    })
+
+    return treatment
   }
 }

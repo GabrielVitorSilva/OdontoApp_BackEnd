@@ -7,4 +7,12 @@ export interface TreatmentsRepository {
   create(data: Prisma.TreatmentCreateInput): Promise<Treatment>
   update(id: string, data: Prisma.TreatmentUpdateInput): Promise<Treatment>
   delete(id: string): Promise<void>
+  addProfessional(
+    treatmentId: string,
+    professionalId: string,
+  ): Promise<Treatment>
+  removeProfessional(
+    treatmentId: string,
+    professionalId: string,
+  ): Promise<Treatment>
 }
