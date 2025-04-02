@@ -34,6 +34,17 @@ import {
   deleteTreatment,
   deleteTreatmentParamsSchema,
 } from './controllers/treatments/delete-treatment'
+import { getUser, getUserParamsSchema } from './controllers/users/get-user'
+import {
+  updateUser,
+  updateUserBodySchema,
+  updateUserParamsSchema,
+} from './controllers/users/update-user'
+import {
+  deleteUser,
+  deleteUserParamsSchema,
+} from './controllers/users/delete-user'
+import { listUsers } from './controllers/users/list-users'
 
 export async function appRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
@@ -114,6 +125,80 @@ export async function appRoutes(appFastify: FastifyInstance) {
       },
     },
     profile,
+  )
+
+  /** Users */
+
+  app.get(
+    '/users',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Users'],
+        summary: 'List all users',
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    listUsers,
+  )
+
+  app.get(
+    '/users/:id',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Users'],
+        summary: 'Get user by ID',
+        params: getUserParamsSchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    getUser,
+  )
+
+  app.put(
+    '/users/:id',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Users'],
+        summary: 'Update a user',
+        params: updateUserParamsSchema,
+        body: updateUserBodySchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    updateUser,
+  )
+
+  app.delete(
+    '/users/:id',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Users'],
+        summary: 'Delete a user',
+        params: deleteUserParamsSchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    deleteUser,
   )
 
   /** Treatments */

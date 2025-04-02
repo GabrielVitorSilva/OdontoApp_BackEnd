@@ -1,5 +1,5 @@
 export class NotAllowedToCreate extends Error {
   constructor() {
-    super('Você não tem permissão para cadastrar esse tipo de usuário.')
+    super('Não autorizado a criar este recurso.')
   }
 }
