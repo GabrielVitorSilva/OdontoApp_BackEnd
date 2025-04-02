@@ -8,6 +8,10 @@ import {
 import { verifyJWT } from './middlewares/verify-jwt'
 import { profile } from './controllers/users/profile'
 import { refresh } from './controllers/users/refresh'
+import {
+  registerClient,
+  registerClientBodySchema,
+} from './controllers/users/register-client'
 
 export async function appRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
@@ -40,6 +44,18 @@ export async function appRoutes(appFastify: FastifyInstance) {
       },
     },
     register,
+  )
+
+  app.post(
+    '/register/client',
+    {
+      schema: {
+        tags: ['Auth'],
+        summary: 'Register a new client user',
+        body: registerClientBodySchema,
+      },
+    },
+    registerClient,
   )
 
   app.patch(
