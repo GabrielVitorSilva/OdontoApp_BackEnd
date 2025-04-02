@@ -9,6 +9,7 @@ interface UpdateUserUseCaseRequest {
   name?: string
   email?: string
   phone?: string
+  role?: string
   authenticatedUserId: string
 }
 
@@ -24,6 +25,7 @@ export class UpdateUserUseCase {
     name,
     email,
     phone,
+    role,
     authenticatedUserId,
   }: UpdateUserUseCaseRequest): Promise<UpdateUserUseCaseResponse> {
     // Verificar se o usuário existe
@@ -34,31 +36,83 @@ export class UpdateUserUseCase {
     }
 
     // Verificar se o usuário autenticado pode atualizar este usuário
-    // Apenas o próprio usuário ou um ADMIN pode atualizar
     const authenticatedUser =
       await this.usersRepository.findByID(authenticatedUserId)
 
-    if (authenticatedUser?.role !== 'ADMIN' && authenticatedUserId !== id) {
+    if (!authenticatedUser) {
       throw new NotAuthorizedError()
     }
 
-    // Se o email foi alterado, verificar se já existe
-    if (email && email !== userToUpdate.email) {
-      const userWithSameEmail = await this.usersRepository.findByEmail(email)
-      if (userWithSameEmail && userWithSameEmail.id !== id) {
-        throw new EmailAlreadyInUseError()
+    // Se tentar atualizar a role, lançar erro
+    if (role) {
+      throw new NotAuthorizedError()
+    }
+
+    // ADMIN pode atualizar qualquer usuário
+    if (authenticatedUser.role === 'ADMIN') {
+      // Se o email foi alterado, verificar se já existe
+      if (email && email !== userToUpdate.email) {
+        const userWithSameEmail = await this.usersRepository.findByEmail(email)
+        if (userWithSameEmail && userWithSameEmail.id !== id) {
+          throw new EmailAlreadyInUseError()
+        }
       }
+
+      const user = await this.usersRepository.update(id, {
+        name,
+        email,
+        phone,
+      })
+
+      return { user }
     }
 
-    // Atualizar usuário
-    const user = await this.usersRepository.update(id, {
-      name,
-      email,
-      phone,
-    })
+    // PROFESSIONAL pode atualizar seus clientes
+    if (authenticatedUser.role === 'PROFESSIONAL') {
+      if (userToUpdate.role !== 'CLIENT') {
+        throw new NotAuthorizedError()
+      }
 
-    return {
-      user,
+      // Se o email foi alterado, verificar se já existe
+      if (email && email !== userToUpdate.email) {
+        const userWithSameEmail = await this.usersRepository.findByEmail(email)
+        if (userWithSameEmail && userWithSameEmail.id !== id) {
+          throw new EmailAlreadyInUseError()
+        }
+      }
+
+      const user = await this.usersRepository.update(id, {
+        name,
+        email,
+        phone,
+      })
+
+      return { user }
     }
+
+    // CLIENT só pode atualizar a si mesmo
+    if (authenticatedUser.role === 'CLIENT') {
+      if (authenticatedUserId !== id) {
+        throw new NotAuthorizedError()
+      }
+
+      // Se o email foi alterado, verificar se já existe
+      if (email && email !== userToUpdate.email) {
+        const userWithSameEmail = await this.usersRepository.findByEmail(email)
+        if (userWithSameEmail && userWithSameEmail.id !== id) {
+          throw new EmailAlreadyInUseError()
+        }
+      }
+
+      const user = await this.usersRepository.update(id, {
+        name,
+        email,
+        phone,
+      })
+
+      return { user }
+    }
+
+    throw new NotAuthorizedError()
   }
 }

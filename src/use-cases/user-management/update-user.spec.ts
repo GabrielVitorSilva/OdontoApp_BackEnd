@@ -124,4 +124,214 @@ describe('Update User Use Case', () => {
 
     expect(user.email).toEqual(clientUser.email)
   })
+
+  it('should be able to update any user as admin', async () => {
+    const admin = await usersRepository.create({
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: '123456',
+      role: 'ADMIN',
+      cpf: '12345678910',
+    })
+
+    const client = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '98765432109',
+    })
+
+    const { user } = await sut.execute({
+      id: client.id,
+      name: 'John Updated',
+      email: 'john.updated@example.com',
+      phone: '123456789',
+      authenticatedUserId: admin.id,
+    })
+
+    expect(user).toEqual(
+      expect.objectContaining({
+        name: 'John Updated',
+        email: 'john.updated@example.com',
+        phone: '123456789',
+        role: 'CLIENT',
+      }),
+    )
+  })
+
+  it('should be able to update only clients as professional', async () => {
+    const professional = await usersRepository.create({
+      name: 'Jane Doe',
+      email: 'janedoe@example.com',
+      password: '123456',
+      role: 'PROFESSIONAL',
+      cpf: '45678912301',
+    })
+
+    const client = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '98765432109',
+    })
+
+    const { user: clientUser } = await sut.execute({
+      id: client.id,
+      name: 'John Updated',
+      email: 'john.updated@example.com',
+      phone: '123456789',
+      authenticatedUserId: professional.id,
+    })
+
+    expect(clientUser).toEqual(
+      expect.objectContaining({
+        name: 'John Updated',
+        email: 'john.updated@example.com',
+        phone: '123456789',
+        role: 'CLIENT',
+      }),
+    )
+
+    await expect(() =>
+      sut.execute({
+        id: professional.id,
+        name: 'Jane Updated',
+        email: 'jane.updated@example.com',
+        phone: '123456789',
+        authenticatedUserId: professional.id,
+      }),
+    ).rejects.toBeInstanceOf(NotAuthorizedError)
+  })
+
+  it('should be able to update only itself as client', async () => {
+    const client = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '98765432109',
+    })
+
+    const otherClient = await usersRepository.create({
+      name: 'Jane Doe',
+      email: 'janedoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '45678912301',
+    })
+
+    const { user: selfUser } = await sut.execute({
+      id: client.id,
+      name: 'John Updated',
+      email: 'john.updated@example.com',
+      phone: '123456789',
+      authenticatedUserId: client.id,
+    })
+
+    expect(selfUser).toEqual(
+      expect.objectContaining({
+        name: 'John Updated',
+        email: 'john.updated@example.com',
+        phone: '123456789',
+        role: 'CLIENT',
+      }),
+    )
+
+    await expect(() =>
+      sut.execute({
+        id: otherClient.id,
+        name: 'Jane Updated',
+        email: 'jane.updated@example.com',
+        phone: '123456789',
+        authenticatedUserId: client.id,
+      }),
+    ).rejects.toBeInstanceOf(NotAuthorizedError)
+  })
+
+  it('should not be able to update a non-existent user', async () => {
+    const admin = await usersRepository.create({
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: '123456',
+      role: 'ADMIN',
+      cpf: '12345678910',
+    })
+
+    await expect(() =>
+      sut.execute({
+        id: 'non-existent-id',
+        name: 'John Updated',
+        email: 'john.updated@example.com',
+        phone: '123456789',
+        authenticatedUserId: admin.id,
+      }),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError)
+  })
+
+  it('should not be able to update user role', async () => {
+    const admin = await usersRepository.create({
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: '123456',
+      role: 'ADMIN',
+      cpf: '12345678910',
+    })
+
+    const client = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '98765432109',
+    })
+
+    await expect(() =>
+      sut.execute({
+        id: client.id,
+        name: 'John Updated',
+        email: 'john.updated@example.com',
+        phone: '123456789',
+        role: 'PROFESSIONAL',
+        authenticatedUserId: admin.id,
+      }),
+    ).rejects.toBeInstanceOf(NotAuthorizedError)
+  })
+
+  it('should not be able to update user with an email that is already in use', async () => {
+    const admin = await usersRepository.create({
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: '123456',
+      role: 'ADMIN',
+      cpf: '12345678910',
+    })
+
+    const client1 = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '98765432109',
+    })
+
+    await usersRepository.create({
+      name: 'Jane Doe',
+      email: 'janedoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '45678912301',
+    })
+
+    await expect(() =>
+      sut.execute({
+        id: client1.id,
+        name: 'John Updated',
+        email: 'janedoe@example.com',
+        phone: '123456789',
+        authenticatedUserId: admin.id,
+      }),
+    ).rejects.toBeInstanceOf(EmailAlreadyInUseError)
+  })
 })

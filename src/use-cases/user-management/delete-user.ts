@@ -22,15 +22,37 @@ export class DeleteUserUseCase {
     }
 
     // Verificar se o usuário autenticado pode deletar este usuário
-    // Apenas o próprio usuário ou um ADMIN pode deletar
     const authenticatedUser =
       await this.usersRepository.findByID(authenticatedUserId)
 
-    if (authenticatedUser?.role !== 'ADMIN' && authenticatedUserId !== id) {
+    if (!authenticatedUser) {
       throw new NotAuthorizedError()
     }
 
-    // Deletar usuário
-    await this.usersRepository.delete(id)
+    // ADMIN pode deletar qualquer usuário
+    if (authenticatedUser.role === 'ADMIN') {
+      await this.usersRepository.delete(id)
+      return
+    }
+
+    // PROFESSIONAL pode deletar seus clientes e a si mesmo
+    if (authenticatedUser.role === 'PROFESSIONAL') {
+      if (userToDelete.role === 'CLIENT' || authenticatedUserId === id) {
+        await this.usersRepository.delete(id)
+        return
+      }
+      throw new NotAuthorizedError()
+    }
+
+    // CLIENT só pode deletar a si mesmo
+    if (authenticatedUser.role === 'CLIENT') {
+      if (authenticatedUserId === id) {
+        await this.usersRepository.delete(id)
+        return
+      }
+      throw new NotAuthorizedError()
+    }
+
+    throw new NotAuthorizedError()
   }
 }

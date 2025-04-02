@@ -151,4 +151,134 @@ describe('Delete User Use Case', () => {
 
     expect(adminRecord).toBeUndefined()
   })
+
+  it('should be able to delete any user as admin', async () => {
+    const admin = await usersRepository.create({
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: '123456',
+      role: 'ADMIN',
+      cpf: '12345678910',
+    })
+
+    const client = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '98765432109',
+    })
+
+    await sut.execute({
+      id: client.id,
+      authenticatedUserId: admin.id,
+    })
+
+    const deletedUser = await usersRepository.findByID(client.id)
+    expect(deletedUser).toBeNull()
+  })
+
+  it('should be able to delete only clients and itself as professional', async () => {
+    const professional = await usersRepository.create({
+      name: 'Jane Doe',
+      email: 'janedoe@example.com',
+      password: '123456',
+      role: 'PROFESSIONAL',
+      cpf: '45678912301',
+    })
+
+    const client = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '98765432109',
+    })
+
+    // Deletar cliente
+    await sut.execute({
+      id: client.id,
+      authenticatedUserId: professional.id,
+    })
+
+    const deletedClient = await usersRepository.findByID(client.id)
+    expect(deletedClient).toBeNull()
+
+    // Deletar a si mesmo
+    await sut.execute({
+      id: professional.id,
+      authenticatedUserId: professional.id,
+    })
+
+    const deletedProfessional = await usersRepository.findByID(professional.id)
+    expect(deletedProfessional).toBeNull()
+
+    // Tentar deletar outro profissional
+    const otherProfessional = await usersRepository.create({
+      name: 'Other Professional',
+      email: 'other.professional@example.com',
+      password: '123456',
+      role: 'PROFESSIONAL',
+      cpf: '78945612301',
+    })
+
+    await expect(() =>
+      sut.execute({
+        id: otherProfessional.id,
+        authenticatedUserId: professional.id,
+      }),
+    ).rejects.toBeInstanceOf(NotAuthorizedError)
+  })
+
+  it('should be able to delete only itself as client', async () => {
+    const client = await usersRepository.create({
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '98765432109',
+    })
+
+    const otherClient = await usersRepository.create({
+      name: 'Jane Doe',
+      email: 'janedoe@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '45678912301',
+    })
+
+    // Deletar a si mesmo
+    await sut.execute({
+      id: client.id,
+      authenticatedUserId: client.id,
+    })
+
+    const deletedSelf = await usersRepository.findByID(client.id)
+    expect(deletedSelf).toBeNull()
+
+    // Tentar deletar outro cliente
+    await expect(() =>
+      sut.execute({
+        id: otherClient.id,
+        authenticatedUserId: client.id,
+      }),
+    ).rejects.toBeInstanceOf(NotAuthorizedError)
+  })
+
+  it('should not be able to delete a non-existent user', async () => {
+    const admin = await usersRepository.create({
+      name: 'Admin User',
+      email: 'admin@example.com',
+      password: '123456',
+      role: 'ADMIN',
+      cpf: '12345678910',
+    })
+
+    await expect(() =>
+      sut.execute({
+        id: 'non-existent-id',
+        authenticatedUserId: admin.id,
+      }),
+    ).rejects.toBeInstanceOf(ResourceNotFoundError)
+  })
 })

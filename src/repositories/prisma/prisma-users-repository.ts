@@ -102,6 +102,26 @@ export class PrismaUsersRepository implements UsersRepository {
           where: { userId: id },
         })
       } else if (user.role === 'PROFESSIONAL') {
+        // Primeiro, buscar o ID do profissional
+        const professional = await tx.professional.findUnique({
+          where: { userId: id },
+        })
+
+        if (!professional) {
+          return
+        }
+
+        // Remover todas as consultas associadas ao profissional
+        await tx.consultation.deleteMany({
+          where: { professionalId: professional.id },
+        })
+
+        // Remover todos os tratamentos associados ao profissional
+        await tx.treatment.deleteMany({
+          where: { professionalId: professional.id },
+        })
+
+        // Por fim, remover o profissional
         await tx.professional.delete({
           where: { userId: id },
         })
