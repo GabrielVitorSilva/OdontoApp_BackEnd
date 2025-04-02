@@ -19,14 +19,14 @@ export class GetUserUseCase {
     id,
     authenticatedUserId,
   }: GetUserUseCaseRequest): Promise<GetUserUseCaseResponse> {
-    const user = await this.usersRepository.findByID(id)
+    const user = await this.usersRepository.findById(id)
 
     if (!user) {
       throw new ResourceNotFoundError()
     }
 
     const authenticatedUser =
-      await this.usersRepository.findByID(authenticatedUserId)
+      await this.usersRepository.findById(authenticatedUserId)
 
     if (!authenticatedUser) {
       throw new NotAuthorizedError()

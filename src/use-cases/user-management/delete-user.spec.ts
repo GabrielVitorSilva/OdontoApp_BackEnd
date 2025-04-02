@@ -42,7 +42,7 @@ describe('Delete User Use Case', () => {
       authenticatedUserId: clientUser.id,
     })
 
-    const deletedUser = await usersRepository.findByID(clientUser.id)
+    const deletedUser = await usersRepository.findById(clientUser.id)
     expect(deletedUser).toBeNull()
   })
 
@@ -65,7 +65,7 @@ describe('Delete User Use Case', () => {
       authenticatedUserId: adminUser.id,
     })
 
-    const deletedUser = await usersRepository.findByID(clientUser.id)
+    const deletedUser = await usersRepository.findById(clientUser.id)
     expect(deletedUser).toBeNull()
   })
 
@@ -75,7 +75,7 @@ describe('Delete User Use Case', () => {
       authenticatedUserId: clientUser.id,
     })
 
-    const deletedUser = await usersRepository.findByID(clientUser.id)
+    const deletedUser = await usersRepository.findById(clientUser.id)
     expect(deletedUser).toBeNull()
   })
 
@@ -174,7 +174,7 @@ describe('Delete User Use Case', () => {
       authenticatedUserId: admin.id,
     })
 
-    const deletedUser = await usersRepository.findByID(client.id)
+    const deletedUser = await usersRepository.findById(client.id)
     expect(deletedUser).toBeNull()
   })
 
@@ -201,7 +201,7 @@ describe('Delete User Use Case', () => {
       authenticatedUserId: professional.id,
     })
 
-    const deletedClient = await usersRepository.findByID(client.id)
+    const deletedClient = await usersRepository.findById(client.id)
     expect(deletedClient).toBeNull()
 
     // Deletar a si mesmo
@@ -210,7 +210,7 @@ describe('Delete User Use Case', () => {
       authenticatedUserId: professional.id,
     })
 
-    const deletedProfessional = await usersRepository.findByID(professional.id)
+    const deletedProfessional = await usersRepository.findById(professional.id)
     expect(deletedProfessional).toBeNull()
 
     // Tentar deletar outro profissional
@@ -253,7 +253,7 @@ describe('Delete User Use Case', () => {
       authenticatedUserId: client.id,
     })
 
-    const deletedSelf = await usersRepository.findByID(client.id)
+    const deletedSelf = await usersRepository.findById(client.id)
     expect(deletedSelf).toBeNull()
 
     // Tentar deletar outro cliente

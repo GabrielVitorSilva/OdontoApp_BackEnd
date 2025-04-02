@@ -15,7 +15,7 @@ export class DeleteUserUseCase {
     authenticatedUserId,
   }: DeleteUserUseCaseRequest): Promise<void> {
     // Verificar se o usuário existe
-    const userToDelete = await this.usersRepository.findByID(id)
+    const userToDelete = await this.usersRepository.findById(id)
 
     if (!userToDelete) {
       throw new ResourceNotFoundError()
@@ -23,7 +23,7 @@ export class DeleteUserUseCase {
 
     // Verificar se o usuário autenticado pode deletar este usuário
     const authenticatedUser =
-      await this.usersRepository.findByID(authenticatedUserId)
+      await this.usersRepository.findById(authenticatedUserId)
 
     if (!authenticatedUser) {
       throw new NotAuthorizedError()

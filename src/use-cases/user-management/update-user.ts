@@ -29,7 +29,7 @@ export class UpdateUserUseCase {
     authenticatedUserId,
   }: UpdateUserUseCaseRequest): Promise<UpdateUserUseCaseResponse> {
     // Verificar se o usuário existe
-    const userToUpdate = await this.usersRepository.findByID(id)
+    const userToUpdate = await this.usersRepository.findById(id)
 
     if (!userToUpdate) {
       throw new ResourceNotFoundError()
@@ -37,7 +37,7 @@ export class UpdateUserUseCase {
 
     // Verificar se o usuário autenticado pode atualizar este usuário
     const authenticatedUser =
-      await this.usersRepository.findByID(authenticatedUserId)
+      await this.usersRepository.findById(authenticatedUserId)
 
     if (!authenticatedUser) {
       throw new NotAuthorizedError()

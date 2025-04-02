@@ -1,5 +1,5 @@
 import { UsersRepository } from '@/repositories/users-repository'
-import { User, Prisma } from '@prisma/client'
+import { User, Prisma, Role } from '@prisma/client'
 import { randomUUID } from 'node:crypto'
 
 export class InMemoryUsersRepository implements UsersRepository {
@@ -8,36 +8,71 @@ export class InMemoryUsersRepository implements UsersRepository {
   public professionals: { id: string; userId: string }[] = []
   public admins: { id: string; userId: string }[] = []
 
-  async findByID(id: string): Promise<User | null> {
-    return this.items.find((item) => item.id === id) || null
+  async findById(id: string): Promise<User | null> {
+    const user = this.items.find((item) => item.id === id)
+
+    if (!user) {
+      return null
+    }
+
+    return user
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.items.find((item) => item.email === email) || null
+    const user = this.items.find((item) => item.email === email)
+
+    if (!user) {
+      return null
+    }
+
+    return user
   }
 
   async findByCpf(cpf: string): Promise<User | null> {
-    return this.items.find((item) => item.cpf === cpf) || null
+    const user = this.items.find((item) => item.cpf === cpf)
+
+    if (!user) {
+      return null
+    }
+
+    return user
   }
 
-  async findMany(): Promise<User[]> {
-    return this.items
+  async findMany(params: {
+    page?: number
+    perPage?: number
+    role?: Role
+  }): Promise<{ users: User[]; total: number }> {
+    const { page = 1, perPage = 10, role } = params
+    const skip = (page - 1) * perPage
+
+    let filteredUsers = this.items
+
+    if (role) {
+      filteredUsers = filteredUsers.filter((user) => user.role === role)
+    }
+
+    const total = filteredUsers.length
+    const users = filteredUsers.slice(skip, skip + perPage)
+
+    return { users, total }
   }
 
   async create(data: Prisma.UserCreateInput): Promise<User> {
-    const user: User = {
+    const user = {
       id: randomUUID(),
       name: data.name,
       email: data.email,
       cpf: data.cpf,
-      phone: data.phone || null,
       password: data.password,
-      role: data.role || 'ADMIN',
+      phone: data.phone,
+      role: data.role as Role,
       createdAt: new Date(),
       updatedAt: new Date(),
     }
 
     this.items.push(user)
+
     return user
   }
 
@@ -56,8 +91,13 @@ export class InMemoryUsersRepository implements UsersRepository {
   }
 
   async createAdmin(userId: string): Promise<{ id: string; userId: string }> {
-    const admin = { id: randomUUID(), userId }
+    const admin = {
+      id: randomUUID(),
+      userId,
+    }
+
     this.admins.push(admin)
+
     return admin
   }
 
@@ -65,27 +105,30 @@ export class InMemoryUsersRepository implements UsersRepository {
     const userIndex = this.items.findIndex((item) => item.id === id)
 
     if (userIndex === -1) {
-      throw new Error('Usuário não encontrado')
+      throw new Error('User not found.')
     }
 
-    const updatedUser = {
-      ...this.items[userIndex],
-      ...(data.name ? { name: data.name as string } : {}),
-      ...(data.email ? { email: data.email as string } : {}),
-      ...(data.phone ? { phone: data.phone as string } : {}),
+    const user = this.items[userIndex]
+
+    this.items[userIndex] = {
+      ...user,
+      name: data.name ?? user.name,
+      email: data.email ?? user.email,
+      cpf: data.cpf ?? user.cpf,
+      password: data.password ?? user.password,
+      phone: data.phone ?? user.phone,
+      role: data.role ?? user.role,
       updatedAt: new Date(),
     }
 
-    this.items[userIndex] = updatedUser
-
-    return updatedUser
+    return this.items[userIndex]
   }
 
   async delete(id: string): Promise<void> {
     const userIndex = this.items.findIndex((item) => item.id === id)
 
     if (userIndex === -1) {
-      return
+      throw new Error('User not found.')
     }
 
     const user = this.items[userIndex]
@@ -103,5 +146,19 @@ export class InMemoryUsersRepository implements UsersRepository {
 
     // Remover o usuário
     this.items.splice(userIndex, 1)
+  }
+
+  async findProfessionalByUserId(
+    userId: string,
+  ): Promise<{ id: string; userId: string } | null> {
+    const professional = this.professionals.find(
+      (item) => item.userId === userId,
+    )
+
+    if (!professional) {
+      return null
+    }
+
+    return professional
   }
 }

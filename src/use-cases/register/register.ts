@@ -32,7 +32,7 @@ export class RegisterUseCase {
     const password_hash = await hash(password, 6)
 
     const authenticatedUser =
-      await this.usersRepository.findByID(authenticatedUserId)
+      await this.usersRepository.findById(authenticatedUserId)
 
     const userWithSameEmail = await this.usersRepository.findByEmail(email)
     const userWithSameCpf = await this.usersRepository.findByCpf(cpf)

@@ -17,7 +17,7 @@ export class ListUsersUseCase {
     authenticatedUserId,
   }: ListUsersUseCaseRequest): Promise<ListUsersUseCaseResponse> {
     const authenticatedUser =
-      await this.usersRepository.findByID(authenticatedUserId)
+      await this.usersRepository.findById(authenticatedUserId)
 
     if (!authenticatedUser) {
       throw new NotAuthorizedError()
@@ -25,13 +25,13 @@ export class ListUsersUseCase {
 
     // Se for ADMIN, pode listar todos os usuários
     if (authenticatedUser.role === 'ADMIN') {
-      const users = await this.usersRepository.findMany()
+      const { users } = await this.usersRepository.findMany({})
       return { users }
     }
 
     // Se for PROFESSIONAL, pode listar apenas os clientes
     if (authenticatedUser.role === 'PROFESSIONAL') {
-      const users = await this.usersRepository.findMany()
+      const { users } = await this.usersRepository.findMany({})
       const clients = users.filter((user) => user.role === 'CLIENT')
       return { users: clients }
     }
