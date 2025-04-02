@@ -24,6 +24,23 @@ describe('Register Client Use Case', () => {
     expect(user.id).toEqual(expect.any(String))
   })
 
+  it('should create a client record in the specific table', async () => {
+    const { user } = await sut.execute({
+      name: 'John Doe',
+      email: 'johndoe@example.com',
+      password: '123456',
+      cpf: '12345678910',
+    })
+
+    const clientRecord = usersRepository.clients.find(
+      (client) => client.userId === user.id,
+    )
+
+    expect(clientRecord).toBeTruthy()
+    expect(clientRecord?.id).toEqual(expect.any(String))
+    expect(clientRecord?.userId).toEqual(user.id)
+  })
+
   it('should hash client password upon registration', async () => {
     const { user } = await sut.execute({
       name: 'John Doe',

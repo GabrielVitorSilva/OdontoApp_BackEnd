@@ -2,6 +2,7 @@ import { UsersRepository } from '@/repositories/users-repository'
 import { User } from '@prisma/client'
 import { ResourceNotFoundError } from '../@errors/resource-not-found-error'
 import { NotAuthorizedError } from '../@errors/not-authorized-error'
+import { EmailAlreadyInUseError } from '../@errors/email-already-in-use-error'
 
 interface UpdateUserUseCaseRequest {
   id: string
@@ -45,7 +46,7 @@ export class UpdateUserUseCase {
     if (email && email !== userToUpdate.email) {
       const userWithSameEmail = await this.usersRepository.findByEmail(email)
       if (userWithSameEmail && userWithSameEmail.id !== id) {
-        throw new Error('Este e-mail já está em uso')
+        throw new EmailAlreadyInUseError()
       }
     }
 

@@ -1,5 +1,6 @@
 import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found-error'
 import { NotAuthorizedError } from '@/use-cases/@errors/not-authorized-error'
+import { EmailAlreadyInUseError } from '@/use-cases/@errors/email-already-in-use-error'
 import { makeUpdateUserUseCase } from '@/use-cases/@factories/make-update-user-use-case'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
@@ -42,6 +43,10 @@ export async function updateUser(request: FastifyRequest, reply: FastifyReply) {
 
     if (error instanceof NotAuthorizedError) {
       return reply.status(403).send({ message: error.message })
+    }
+
+    if (error instanceof EmailAlreadyInUseError) {
+      return reply.status(409).send({ message: error.message })
     }
 
     if (error instanceof Error) {
