@@ -9,4 +9,8 @@ export interface ConsultationRepository {
     data: Prisma.ConsultationUpdateInput,
   ): Promise<Consultation>
   delete(id: string): Promise<void>
+  findByProfessionalAndDateTime(
+    professionalId: string,
+    dateTime: Date,
+  ): Promise<Consultation[]>
 }

@@ -2,6 +2,10 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { randomUUID } from 'node:crypto'
 import { makeCreateConsultationUseCase } from '@/use-cases/@factories/make-create-consultation-use-case'
+import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found-error'
+import { InvalidConsultationDateError } from '@/use-cases/@errors/invalid-consultation-date-error'
+import { ProfessionalNotLinkedToTreatmentError } from '@/use-cases/@errors/professional-not-linked-to-treatment-error'
+import { ConsultationTimeConflictError } from '@/use-cases/@errors/consultation-time-conflict-error'
 
 export const createConsultationBodySchema = z.object({
   clientId: z.string().uuid(),
@@ -35,6 +39,22 @@ export async function createConsultation(
       consultation,
     })
   } catch (error) {
+    if (error instanceof ResourceNotFoundError) {
+      return reply.status(404).send({ message: error.message })
+    }
+
+    if (error instanceof InvalidConsultationDateError) {
+      return reply.status(400).send({ message: error.message })
+    }
+
+    if (error instanceof ProfessionalNotLinkedToTreatmentError) {
+      return reply.status(400).send({ message: error.message })
+    }
+
+    if (error instanceof ConsultationTimeConflictError) {
+      return reply.status(409).send({ message: error.message })
+    }
+
     console.error(error)
     return reply.status(500).send({ message: 'Erro interno do servidor' })
   }
