@@ -54,6 +54,10 @@ import {
   removeProfessionalFromTreatmentParamsSchema,
 } from './controllers/treatments/remove-professional-from-treatment'
 import { listProfessionals } from './controllers/users/list-professionals'
+import {
+  createConsultation,
+  createConsultationBodySchema,
+} from './controllers/consultation/create-consultation'
 
 export async function appRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
@@ -371,5 +375,25 @@ export async function appRoutes(appFastify: FastifyInstance) {
       },
     },
     removeProfessionalFromTreatment,
+  )
+
+  /** Consultations */
+
+  app.post(
+    '/consultations',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Consultations'],
+        summary: 'Create a new consultation',
+        body: createConsultationBodySchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    createConsultation,
   )
 }

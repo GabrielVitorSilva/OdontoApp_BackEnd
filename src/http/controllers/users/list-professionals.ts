@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
-import { makeListProfessionalsUseCase } from '@/use-cases/factories/make-list-professionals-use-case'
+import { makeListProfessionalsUseCase } from '@/use-cases/@factories/make-list-professionals-use-case'
 
 export async function listProfessionals(
   request: FastifyRequest,

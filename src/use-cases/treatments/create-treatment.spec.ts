@@ -1,7 +1,6 @@
 import { InMemoryTreatmentsRepository } from '@/repositories/in-memory/in-memory-treatments-repository'
 import { expect, describe, it, beforeEach } from 'vitest'
 import { CreateTreatmentUseCase } from './create-treatment'
-
 let treatmentsRepository: InMemoryTreatmentsRepository
 let sut: CreateTreatmentUseCase
 
