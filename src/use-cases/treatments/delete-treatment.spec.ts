@@ -18,7 +18,7 @@ describe('Delete Treatment Use Case', () => {
       description: 'Limpeza dentária profissional',
       durationMinutes: 45,
       price: 120,
-      professional: {
+      professionals: {
         connect: {
           id: 'professional-1',
         },

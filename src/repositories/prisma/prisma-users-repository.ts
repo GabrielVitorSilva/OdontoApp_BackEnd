@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { UsersRepository } from '../users-repository'
-import { Prisma, User } from '@prisma/client'
+import { Prisma, User, Role } from '@prisma/client'
 
 export class PrismaUsersRepository implements UsersRepository {
   async findById(id: string): Promise<User | null> {
@@ -96,7 +96,7 @@ export class PrismaUsersRepository implements UsersRepository {
   }
 
   async createAdmin(userId: string): Promise<{ id: string; userId: string }> {
-    const admin = await prisma.admin.create({
+    const admin = await prisma.administrator.create({
       data: {
         userId,
       },

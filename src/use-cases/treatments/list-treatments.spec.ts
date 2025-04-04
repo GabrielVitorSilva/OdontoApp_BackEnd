@@ -17,7 +17,7 @@ describe('List Treatments Use Case', () => {
       description: 'Limpeza dentária profissional',
       durationMinutes: 45,
       price: 120,
-      professional: {
+      professionals: {
         connect: {
           id: 'professional-1',
         },
@@ -29,7 +29,7 @@ describe('List Treatments Use Case', () => {
       description: 'Extração de dente',
       durationMinutes: 60,
       price: 250,
-      professional: {
+      professionals: {
         connect: {
           id: 'professional-2',
         },

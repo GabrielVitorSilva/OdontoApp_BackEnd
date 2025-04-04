@@ -65,7 +65,7 @@ export class InMemoryUsersRepository implements UsersRepository {
       email: data.email,
       cpf: data.cpf,
       password: data.password,
-      phone: data.phone,
+      phone: data.phone ?? null,
       role: data.role as Role,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -112,12 +112,18 @@ export class InMemoryUsersRepository implements UsersRepository {
 
     this.items[userIndex] = {
       ...user,
-      name: data.name ?? user.name,
-      email: data.email ?? user.email,
-      cpf: data.cpf ?? user.cpf,
-      password: data.password ?? user.password,
-      phone: data.phone ?? user.phone,
-      role: data.role ?? user.role,
+      name: typeof data.name === 'string' ? data.name : user.name,
+      email: typeof data.email === 'string' ? data.email : user.email,
+      cpf: typeof data.cpf === 'string' ? data.cpf : user.cpf,
+      password:
+        typeof data.password === 'string' ? data.password : user.password,
+      phone:
+        data.phone === null
+          ? null
+          : typeof data.phone === 'string'
+            ? data.phone
+            : user.phone,
+      role: typeof data.role === 'string' ? (data.role as Role) : user.role,
       updatedAt: new Date(),
     }
 
