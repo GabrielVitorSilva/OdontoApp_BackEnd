@@ -49,7 +49,6 @@ export class RegisterUseCase {
       throw new UserAlreadyExistsError()
     }
 
-    // Criar o usuário no banco de dados
     const user = await this.usersRepository.create({
       name,
       email,
@@ -58,7 +57,6 @@ export class RegisterUseCase {
       cpf,
     })
 
-    // Criar o registro na tabela específica com base na role
     if (role === 'CLIENT') {
       await this.usersRepository.createClient(user.id)
     } else if (role === 'PROFESSIONAL') {

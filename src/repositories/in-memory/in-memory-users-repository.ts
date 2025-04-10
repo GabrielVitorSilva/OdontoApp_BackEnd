@@ -139,7 +139,6 @@ export class InMemoryUsersRepository implements UsersRepository {
 
     const user = this.items[userIndex]
 
-    // Remover da tabela específica com base na role
     if (user.role === 'CLIENT') {
       this.clients = this.clients.filter((client) => client.userId !== id)
     } else if (user.role === 'PROFESSIONAL') {
@@ -150,7 +149,6 @@ export class InMemoryUsersRepository implements UsersRepository {
       this.admins = this.admins.filter((admin) => admin.userId !== id)
     }
 
-    // Remover o usuário
     this.items.splice(userIndex, 1)
   }
 

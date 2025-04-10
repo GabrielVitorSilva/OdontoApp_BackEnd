@@ -44,7 +44,6 @@ export class InMemoryTreatmentsRepository implements TreatmentsRepository {
 
     this.items.push(treatment)
 
-    // Adicionar relação com profissional se fornecido
     if (data.professionals?.connect) {
       const professionalId = Array.isArray(data.professionals.connect)
         ? data.professionals.connect[0]?.id
@@ -90,20 +89,17 @@ export class InMemoryTreatmentsRepository implements TreatmentsRepository {
       updatedAt: new Date(),
     }
 
-    // Atualizar relação com profissional se fornecido
     if (data.professionals?.connect) {
       const professionalId = Array.isArray(data.professionals.connect)
         ? data.professionals.connect[0]?.id
         : data.professionals.connect.id
 
       if (professionalId) {
-        // Remover relações existentes
         this.treatmentProfessionalRelations =
           this.treatmentProfessionalRelations.filter(
             (relation) => relation.treatmentId !== id,
           )
 
-        // Adicionar nova relação
         this.treatmentProfessionalRelations.push({
           treatmentId: id,
           professionalId,
@@ -121,7 +117,6 @@ export class InMemoryTreatmentsRepository implements TreatmentsRepository {
       throw new Error('Treatment not found.')
     }
 
-    // Remover relações
     this.treatmentProfessionalRelations =
       this.treatmentProfessionalRelations.filter(
         (relation) => relation.treatmentId !== id,
@@ -142,7 +137,6 @@ export class InMemoryTreatmentsRepository implements TreatmentsRepository {
       throw new Error('Treatment not found.')
     }
 
-    // Adicionar relação
     this.treatmentProfessionalRelations.push({
       treatmentId,
       professionalId,
@@ -166,7 +160,6 @@ export class InMemoryTreatmentsRepository implements TreatmentsRepository {
       throw new Error('Treatment not found.')
     }
 
-    // Remover relação
     this.treatmentProfessionalRelations =
       this.treatmentProfessionalRelations.filter(
         (relation) =>

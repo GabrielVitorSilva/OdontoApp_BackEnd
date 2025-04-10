@@ -6,7 +6,6 @@ import bcryptjs from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function seed() {
-  // Limpar dados existentes
   await prisma.consultation.deleteMany()
   await prisma.treatment.deleteMany()
   await prisma.client.deleteMany()
@@ -18,10 +17,8 @@ async function seed() {
   const { hash } = bcryptjs
   const passwordHash = await hash('123@Senha', 6)
 
-  // Criar 10 usuários com roles diversas
   const users = []
 
-  // 2 ADMIN
   for (let i = 0; i < 2; i++) {
     const admin = await prisma.user.create({
       data: {
@@ -36,7 +33,6 @@ async function seed() {
 
     users.push(admin)
 
-    // Criar registro na tabela Administrator
     await prisma.administrator.create({
       data: {
         userId: admin.id,
@@ -44,7 +40,6 @@ async function seed() {
     })
   }
 
-  // 3 PROFESSIONAL
   const professionals = []
   for (let i = 0; i < 3; i++) {
     const professional = await prisma.user.create({
@@ -60,7 +55,6 @@ async function seed() {
 
     users.push(professional)
 
-    // Criar registro na tabela Professional
     const professionalRecord = await prisma.professional.create({
       data: {
         userId: professional.id,
@@ -70,7 +64,6 @@ async function seed() {
     professionals.push(professionalRecord)
   }
 
-  // 5 CLIENT
   const clients = []
   for (let i = 0; i < 5; i++) {
     const client = await prisma.user.create({
@@ -86,7 +79,6 @@ async function seed() {
 
     users.push(client)
 
-    // Criar registro na tabela Client
     const clientRecord = await prisma.client.create({
       data: {
         userId: client.id,
@@ -96,7 +88,6 @@ async function seed() {
     clients.push(clientRecord)
   }
 
-  // Lista de tratamentos odontológicos comuns
   const treatments = [
     {
       name: 'Limpeza Dental Profissional',
@@ -164,7 +155,6 @@ async function seed() {
     },
   ]
 
-  // Criar tratamentos
   for (const treatment of treatments) {
     await prisma.treatment.create({
       data: {
@@ -176,10 +166,8 @@ async function seed() {
     })
   }
 
-  // Associar tratamentos aleatoriamente aos profissionais
   const allTreatments = await prisma.treatment.findMany()
   for (const professional of professionals) {
-    // Cada profissional terá 2-4 tratamentos aleatórios
     const numberOfTreatments = Math.floor(Math.random() * 3) + 2
     const shuffledTreatments = [...allTreatments].sort(
       () => 0.5 - Math.random(),
@@ -198,7 +186,6 @@ async function seed() {
     }
   }
 
-  // Criar algumas consultas aleatórias
   const treatmentsWithProfessionals = await prisma.treatment.findMany({
     include: {
       professionals: true,
@@ -206,11 +193,9 @@ async function seed() {
   })
 
   for (let i = 0; i < 15; i++) {
-    // Escolher um cliente aleatório
     const randomClientIndex = Math.floor(Math.random() * clients.length)
     const client = clients[randomClientIndex]
 
-    // Escolher um tratamento aleatório que tenha profissionais associados
     const availableTreatments = treatmentsWithProfessionals.filter(
       (treatment) => treatment.professionals.length > 0,
     )
@@ -225,20 +210,16 @@ async function seed() {
     )
     const treatment = availableTreatments[randomTreatmentIndex]
 
-    // Escolher um profissional aleatório associado ao tratamento
     const randomProfessionalIndex = Math.floor(
       Math.random() * treatment.professionals.length,
     )
     const professional = treatment.professionals[randomProfessionalIndex]
 
-    // Gerar uma data aleatória nos próximos 60 dias
     const futureDate = new Date()
     futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 60))
 
-    // Ajustar para horário comercial (8h às 18h)
     futureDate.setHours(8 + Math.floor(Math.random() * 9), 0, 0, 0)
 
-    // Status aleatório
     const statusOptions: ConsultationStatus[] = [
       'SCHEDULED',
       'CANCELED',

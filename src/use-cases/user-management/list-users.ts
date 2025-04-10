@@ -23,20 +23,17 @@ export class ListUsersUseCase {
       throw new NotAuthorizedError()
     }
 
-    // Se for ADMIN, pode listar todos os usuários
     if (authenticatedUser.role === 'ADMIN') {
       const { users } = await this.usersRepository.findMany({})
       return { users }
     }
 
-    // Se for PROFESSIONAL, pode listar apenas os clientes
     if (authenticatedUser.role === 'PROFESSIONAL') {
       const { users } = await this.usersRepository.findMany({})
       const clients = users.filter((user) => user.role === 'CLIENT')
       return { users: clients }
     }
 
-    // CLIENT não pode listar usuários
     throw new NotAuthorizedError()
   }
 }

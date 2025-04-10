@@ -28,14 +28,12 @@ export class UpdateUserUseCase {
     role,
     authenticatedUserId,
   }: UpdateUserUseCaseRequest): Promise<UpdateUserUseCaseResponse> {
-    // Verificar se o usuário existe
     const userToUpdate = await this.usersRepository.findById(id)
 
     if (!userToUpdate) {
       throw new ResourceNotFoundError()
     }
 
-    // Verificar se o usuário autenticado pode atualizar este usuário
     const authenticatedUser =
       await this.usersRepository.findById(authenticatedUserId)
 
@@ -43,14 +41,11 @@ export class UpdateUserUseCase {
       throw new NotAuthorizedError()
     }
 
-    // Se tentar atualizar a role, lançar erro
     if (role) {
       throw new NotAuthorizedError()
     }
 
-    // ADMIN pode atualizar qualquer usuário
     if (authenticatedUser.role === 'ADMIN') {
-      // Se o email foi alterado, verificar se já existe
       if (email && email !== userToUpdate.email) {
         const userWithSameEmail = await this.usersRepository.findByEmail(email)
         if (userWithSameEmail && userWithSameEmail.id !== id) {
@@ -67,13 +62,11 @@ export class UpdateUserUseCase {
       return { user }
     }
 
-    // PROFESSIONAL pode atualizar seus clientes
     if (authenticatedUser.role === 'PROFESSIONAL') {
       if (userToUpdate.role !== 'CLIENT') {
         throw new NotAuthorizedError()
       }
 
-      // Se o email foi alterado, verificar se já existe
       if (email && email !== userToUpdate.email) {
         const userWithSameEmail = await this.usersRepository.findByEmail(email)
         if (userWithSameEmail && userWithSameEmail.id !== id) {
@@ -90,13 +83,11 @@ export class UpdateUserUseCase {
       return { user }
     }
 
-    // CLIENT só pode atualizar a si mesmo
     if (authenticatedUser.role === 'CLIENT') {
       if (authenticatedUserId !== id) {
         throw new NotAuthorizedError()
       }
 
-      // Se o email foi alterado, verificar se já existe
       if (email && email !== userToUpdate.email) {
         const userWithSameEmail = await this.usersRepository.findByEmail(email)
         if (userWithSameEmail && userWithSameEmail.id !== id) {

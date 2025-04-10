@@ -35,19 +35,16 @@ export class CreateConsultationUseCase {
     status,
     treatmentId,
   }: CreateConsultationUseCaseRequest): Promise<CreateConsultationUseCaseResponse> {
-    // Verificar se a data é futura
     if (dateTime <= new Date()) {
       throw new InvalidConsultationDateError()
     }
 
-    // Verificar se o cliente existe
     const client = await this.usersRepository.findClientById(clientId)
 
     if (!client) {
       throw new ResourceNotFoundError()
     }
 
-    // Verificar se o profissional existe
     const professional =
       await this.usersRepository.findProfessionalById(professionalId)
 
@@ -55,14 +52,12 @@ export class CreateConsultationUseCase {
       throw new ResourceNotFoundError()
     }
 
-    // Verificar se o tratamento existe
     const treatment = await this.treatmentsRepository.findById(treatmentId)
 
     if (!treatment) {
       throw new ResourceNotFoundError()
     }
 
-    // Verificar se o profissional está vinculado ao tratamento
     const treatmentsByProfessional =
       await this.treatmentsRepository.findByProfessionalId(professionalId)
     const isProfessionalLinkedToTreatment = treatmentsByProfessional.some(
@@ -73,7 +68,6 @@ export class CreateConsultationUseCase {
       throw new ProfessionalNotLinkedToTreatmentError()
     }
 
-    // Verificar se já existe consulta agendada para o profissional neste horário
     const existingConsultations =
       await this.consultationRepository.findByProfessionalAndDateTime(
         professionalId,

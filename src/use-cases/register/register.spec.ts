@@ -23,7 +23,6 @@ describe('Register Use Case', () => {
       cpf: '98765432100',
     })
 
-    // Criar o registro na tabela específica
     await usersRepository.createAdmin(authenticatedUser.id)
   })
 
@@ -106,7 +105,6 @@ describe('Register Use Case', () => {
       cpf: '98765432111',
     })
 
-    // Criar o registro na tabela específica
     await usersRepository.createProfessional(professionalUser.id)
 
     await expect(() =>
@@ -130,7 +128,6 @@ describe('Register Use Case', () => {
       cpf: '98765432122',
     })
 
-    // Criar o registro na tabela específica
     await usersRepository.createClient(clientUser.id)
 
     await expect(() =>

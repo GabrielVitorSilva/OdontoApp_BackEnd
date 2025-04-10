@@ -14,14 +14,12 @@ export class DeleteUserUseCase {
     id,
     authenticatedUserId,
   }: DeleteUserUseCaseRequest): Promise<void> {
-    // Verificar se o usuário existe
     const userToDelete = await this.usersRepository.findById(id)
 
     if (!userToDelete) {
       throw new ResourceNotFoundError()
     }
 
-    // Verificar se o usuário autenticado pode deletar este usuário
     const authenticatedUser =
       await this.usersRepository.findById(authenticatedUserId)
 
@@ -29,13 +27,11 @@ export class DeleteUserUseCase {
       throw new NotAuthorizedError()
     }
 
-    // ADMIN pode deletar qualquer usuário
     if (authenticatedUser.role === 'ADMIN') {
       await this.usersRepository.delete(id)
       return
     }
 
-    // PROFESSIONAL pode deletar seus clientes e a si mesmo
     if (authenticatedUser.role === 'PROFESSIONAL') {
       if (userToDelete.role === 'CLIENT' || authenticatedUserId === id) {
         await this.usersRepository.delete(id)
@@ -44,7 +40,6 @@ export class DeleteUserUseCase {
       throw new NotAuthorizedError()
     }
 
-    // CLIENT só pode deletar a si mesmo
     if (authenticatedUser.role === 'CLIENT') {
       if (authenticatedUserId === id) {
         await this.usersRepository.delete(id)

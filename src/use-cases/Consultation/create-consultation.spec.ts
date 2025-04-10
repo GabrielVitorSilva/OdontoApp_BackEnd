@@ -27,7 +27,6 @@ describe('Create Consultation Use Case', () => {
   })
 
   it('should be able to create a consultation', async () => {
-    // Criar um cliente
     const clientUser = await usersRepository.create({
       name: 'Cliente Teste',
       email: 'cliente@teste.com',
@@ -38,7 +37,6 @@ describe('Create Consultation Use Case', () => {
 
     const client = await usersRepository.createClient(clientUser.id)
 
-    // Criar um profissional
     const professionalUser = await usersRepository.create({
       name: 'Profissional Teste',
       email: 'profissional@teste.com',
@@ -51,7 +49,6 @@ describe('Create Consultation Use Case', () => {
       professionalUser.id,
     )
 
-    // Criar um tratamento
     const treatment = await treatmentsRepository.create({
       name: 'Tratamento Teste',
       description: 'Descrição do tratamento teste',
@@ -64,7 +61,6 @@ describe('Create Consultation Use Case', () => {
       },
     })
 
-    // Data futura para a consulta
     const futureDate = new Date()
     futureDate.setDate(futureDate.getDate() + 1) // Amanhã
     futureDate.setHours(10, 0, 0, 0) // 10:00
@@ -87,7 +83,6 @@ describe('Create Consultation Use Case', () => {
   })
 
   it('should not be able to create a consultation with past date', async () => {
-    // Criar um cliente
     const clientUser = await usersRepository.create({
       name: 'Cliente Teste',
       email: 'cliente@teste.com',
@@ -98,7 +93,6 @@ describe('Create Consultation Use Case', () => {
 
     const client = await usersRepository.createClient(clientUser.id)
 
-    // Criar um profissional
     const professionalUser = await usersRepository.create({
       name: 'Profissional Teste',
       email: 'profissional@teste.com',
@@ -111,7 +105,6 @@ describe('Create Consultation Use Case', () => {
       professionalUser.id,
     )
 
-    // Criar um tratamento
     const treatment = await treatmentsRepository.create({
       name: 'Tratamento Teste',
       description: 'Descrição do tratamento teste',
@@ -124,7 +117,6 @@ describe('Create Consultation Use Case', () => {
       },
     })
 
-    // Data passada para a consulta
     const pastDate = new Date()
     pastDate.setDate(pastDate.getDate() - 1) // Ontem
     pastDate.setHours(10, 0, 0, 0) // 10:00
@@ -142,7 +134,6 @@ describe('Create Consultation Use Case', () => {
   })
 
   it('should not be able to create a consultation with non-existent client', async () => {
-    // Criar um profissional
     const professionalUser = await usersRepository.create({
       name: 'Profissional Teste',
       email: 'profissional@teste.com',
@@ -155,7 +146,6 @@ describe('Create Consultation Use Case', () => {
       professionalUser.id,
     )
 
-    // Criar um tratamento
     const treatment = await treatmentsRepository.create({
       name: 'Tratamento Teste',
       description: 'Descrição do tratamento teste',
@@ -168,7 +158,6 @@ describe('Create Consultation Use Case', () => {
       },
     })
 
-    // Data futura para a consulta
     const futureDate = new Date()
     futureDate.setDate(futureDate.getDate() + 1) // Amanhã
     futureDate.setHours(10, 0, 0, 0) // 10:00
@@ -186,7 +175,6 @@ describe('Create Consultation Use Case', () => {
   })
 
   it('should not be able to create a consultation with non-existent professional', async () => {
-    // Criar um cliente
     const clientUser = await usersRepository.create({
       name: 'Cliente Teste',
       email: 'cliente@teste.com',
@@ -197,7 +185,6 @@ describe('Create Consultation Use Case', () => {
 
     const client = await usersRepository.createClient(clientUser.id)
 
-    // Criar um tratamento
     const treatment = await treatmentsRepository.create({
       name: 'Tratamento Teste',
       description: 'Descrição do tratamento teste',
@@ -205,7 +192,6 @@ describe('Create Consultation Use Case', () => {
       price: 150,
     })
 
-    // Data futura para a consulta
     const futureDate = new Date()
     futureDate.setDate(futureDate.getDate() + 1) // Amanhã
     futureDate.setHours(10, 0, 0, 0) // 10:00
@@ -223,7 +209,6 @@ describe('Create Consultation Use Case', () => {
   })
 
   it('should not be able to create a consultation with non-existent treatment', async () => {
-    // Criar um cliente
     const clientUser = await usersRepository.create({
       name: 'Cliente Teste',
       email: 'cliente@teste.com',
@@ -234,7 +219,6 @@ describe('Create Consultation Use Case', () => {
 
     const client = await usersRepository.createClient(clientUser.id)
 
-    // Criar um profissional
     const professionalUser = await usersRepository.create({
       name: 'Profissional Teste',
       email: 'profissional@teste.com',
@@ -247,7 +231,6 @@ describe('Create Consultation Use Case', () => {
       professionalUser.id,
     )
 
-    // Data futura para a consulta
     const futureDate = new Date()
     futureDate.setDate(futureDate.getDate() + 1) // Amanhã
     futureDate.setHours(10, 0, 0, 0) // 10:00
@@ -265,7 +248,6 @@ describe('Create Consultation Use Case', () => {
   })
 
   it('should not be able to create a consultation with professional not linked to treatment', async () => {
-    // Criar um cliente
     const clientUser = await usersRepository.create({
       name: 'Cliente Teste',
       email: 'cliente@teste.com',
@@ -276,7 +258,6 @@ describe('Create Consultation Use Case', () => {
 
     const client = await usersRepository.createClient(clientUser.id)
 
-    // Criar um profissional
     const professionalUser = await usersRepository.create({
       name: 'Profissional Teste',
       email: 'profissional@teste.com',
@@ -289,7 +270,6 @@ describe('Create Consultation Use Case', () => {
       professionalUser.id,
     )
 
-    // Criar outro profissional
     const anotherProfessionalUser = await usersRepository.create({
       name: 'Outro Profissional',
       email: 'outro@teste.com',
@@ -302,7 +282,6 @@ describe('Create Consultation Use Case', () => {
       anotherProfessionalUser.id,
     )
 
-    // Criar um tratamento vinculado ao primeiro profissional
     const treatment = await treatmentsRepository.create({
       name: 'Tratamento Teste',
       description: 'Descrição do tratamento teste',
@@ -315,7 +294,6 @@ describe('Create Consultation Use Case', () => {
       },
     })
 
-    // Data futura para a consulta
     const futureDate = new Date()
     futureDate.setDate(futureDate.getDate() + 1) // Amanhã
     futureDate.setHours(10, 0, 0, 0) // 10:00
@@ -333,7 +311,6 @@ describe('Create Consultation Use Case', () => {
   })
 
   it('should not be able to create a consultation with time conflict', async () => {
-    // Criar um cliente
     const clientUser = await usersRepository.create({
       name: 'Cliente Teste',
       email: 'cliente@teste.com',
@@ -344,7 +321,6 @@ describe('Create Consultation Use Case', () => {
 
     const client = await usersRepository.createClient(clientUser.id)
 
-    // Criar um profissional
     const professionalUser = await usersRepository.create({
       name: 'Profissional Teste',
       email: 'profissional@teste.com',
@@ -357,7 +333,6 @@ describe('Create Consultation Use Case', () => {
       professionalUser.id,
     )
 
-    // Criar um tratamento
     const treatment = await treatmentsRepository.create({
       name: 'Tratamento Teste',
       description: 'Descrição do tratamento teste',
@@ -370,12 +345,10 @@ describe('Create Consultation Use Case', () => {
       },
     })
 
-    // Data futura para a consulta
     const futureDate = new Date()
     futureDate.setDate(futureDate.getDate() + 1) // Amanhã
     futureDate.setHours(10, 0, 0, 0) // 10:00
 
-    // Criar uma consulta existente
     await sut.execute({
       id: randomUUID(),
       clientId: client.id,
@@ -385,7 +358,6 @@ describe('Create Consultation Use Case', () => {
       status: 'SCHEDULED',
     })
 
-    // Tentar criar outra consulta no mesmo horário
     await expect(() =>
       sut.execute({
         id: randomUUID(),

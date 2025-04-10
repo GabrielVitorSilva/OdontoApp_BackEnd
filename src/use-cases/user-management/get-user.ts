@@ -32,12 +32,10 @@ export class GetUserUseCase {
       throw new NotAuthorizedError()
     }
 
-    // ADMIN pode ver qualquer usuário
     if (authenticatedUser.role === 'ADMIN') {
       return { user }
     }
 
-    // PROFESSIONAL pode ver seus clientes
     if (authenticatedUser.role === 'PROFESSIONAL') {
       if (user.role === 'CLIENT') {
         return { user }
@@ -45,7 +43,6 @@ export class GetUserUseCase {
       throw new NotAuthorizedError()
     }
 
-    // CLIENT só pode ver a si mesmo
     if (authenticatedUser.role === 'CLIENT') {
       if (authenticatedUserId === id) {
         return { user }

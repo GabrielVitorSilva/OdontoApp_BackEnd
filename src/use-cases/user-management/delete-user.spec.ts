@@ -32,7 +32,6 @@ describe('Delete User Use Case', () => {
       cpf: '12345678910',
     })
 
-    // Criar registro correspondente na tabela específica
     await usersRepository.createClient(clientUser.id)
   })
 
@@ -129,7 +128,6 @@ describe('Delete User Use Case', () => {
   })
 
   it('should clean up admin record when deleting an ADMIN user', async () => {
-    // Criamos um admin adicional para teste
     const newAdminUser = await usersRepository.create({
       name: 'New Admin',
       email: 'newadmin@example.com',
@@ -195,7 +193,6 @@ describe('Delete User Use Case', () => {
       cpf: '98765432109',
     })
 
-    // Deletar cliente
     await sut.execute({
       id: client.id,
       authenticatedUserId: professional.id,
@@ -204,7 +201,6 @@ describe('Delete User Use Case', () => {
     const deletedClient = await usersRepository.findById(client.id)
     expect(deletedClient).toBeNull()
 
-    // Deletar a si mesmo
     await sut.execute({
       id: professional.id,
       authenticatedUserId: professional.id,
@@ -213,7 +209,6 @@ describe('Delete User Use Case', () => {
     const deletedProfessional = await usersRepository.findById(professional.id)
     expect(deletedProfessional).toBeNull()
 
-    // Tentar deletar outro profissional
     const otherProfessional = await usersRepository.create({
       name: 'Other Professional',
       email: 'other.professional@example.com',
@@ -247,7 +242,6 @@ describe('Delete User Use Case', () => {
       cpf: '45678912301',
     })
 
-    // Deletar a si mesmo
     await sut.execute({
       id: client.id,
       authenticatedUserId: client.id,
@@ -256,7 +250,6 @@ describe('Delete User Use Case', () => {
     const deletedSelf = await usersRepository.findById(client.id)
     expect(deletedSelf).toBeNull()
 
-    // Tentar deletar outro cliente
     await expect(() =>
       sut.execute({
         id: otherClient.id,

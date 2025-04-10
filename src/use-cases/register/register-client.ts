@@ -33,7 +33,6 @@ export class RegisterClientUseCase {
       throw new UserAlreadyExistsError()
     }
 
-    // Criar o usuário no banco de dados
     const user = await this.usersRepository.create({
       name,
       email,
@@ -42,7 +41,6 @@ export class RegisterClientUseCase {
       cpf,
     })
 
-    // Criar o registro na tabela de cliente
     await this.usersRepository.createClient(user.id)
 
     return {
