@@ -5,6 +5,11 @@ import {
   createConsultation,
   createConsultationBodySchema,
 } from '../controllers/consultation/create-consultation'
+import {
+  updateConsultation,
+  updateConsultationBodySchema,
+  updateConsultationParamsSchema,
+} from '../controllers/consultation/update-consultation'
 
 export async function consultationsRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
@@ -25,5 +30,24 @@ export async function consultationsRoutes(appFastify: FastifyInstance) {
       },
     },
     createConsultation,
+  )
+
+  app.patch(
+    '/consultations/:id',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Consultations'],
+        summary: 'Update a consultation',
+        params: updateConsultationParamsSchema,
+        body: updateConsultationBodySchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    updateConsultation,
   )
 }
