@@ -6,6 +6,8 @@ import { ResourceNotFoundError } from '../@errors/resource-not-found-error'
 import { InvalidConsultationDateError } from '../@errors/invalid-consultation-date-error'
 import { ProfessionalNotLinkedToTreatmentError } from '../@errors/professional-not-linked-to-treatment-error'
 import { ConsultationTimeConflictError } from '../@errors/consultation-time-conflict-error'
+import { sendMail } from '@/lib/mail'
+import { generateConsultationConfirmationEmail } from '@/lib/templates/consultation-confirmation'
 
 interface CreateConsultationUseCaseRequest {
   id: string
@@ -45,10 +47,22 @@ export class CreateConsultationUseCase {
       throw new ResourceNotFoundError()
     }
 
+    const clientUser = await this.usersRepository.findById(client.userId)
+    if (!clientUser) {
+      throw new ResourceNotFoundError()
+    }
+
     const professional =
       await this.usersRepository.findProfessionalById(professionalId)
 
     if (!professional) {
+      throw new ResourceNotFoundError()
+    }
+
+    const professionalUser = await this.usersRepository.findById(
+      professional.userId,
+    )
+    if (!professionalUser) {
       throw new ResourceNotFoundError()
     }
 
@@ -98,6 +112,22 @@ export class CreateConsultationUseCase {
         },
       },
     })
+
+    // Enviar email de confirmação
+    if (status === 'SCHEDULED') {
+      const emailHtml = generateConsultationConfirmationEmail({
+        clientName: clientUser.name,
+        professionalName: professionalUser.name,
+        treatmentName: treatment.name,
+        dateTime,
+      })
+
+      await sendMail({
+        to: clientUser.email,
+        subject: 'Confirmação de Consulta - OdontoApp',
+        html: emailHtml,
+      })
+    }
 
     return { consultation }
   }
