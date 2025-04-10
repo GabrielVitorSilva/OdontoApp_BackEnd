@@ -12,6 +12,13 @@ import {
   ZodTypeProvider,
 } from 'fastify-type-provider-zod'
 import fastifyCookie from '@fastify/cookie'
+import * as Sentry from '@sentry/node'
+
+Sentry.init({
+  dsn: env.SENTRY_DSN,
+  environment: env.NODE_ENV,
+  tracesSampleRate: 1.0,
+})
 
 export const app = fastify().withTypeProvider<ZodTypeProvider>()
 
@@ -72,10 +79,10 @@ app.setErrorHandler((error, _, reply) => {
     })
   }
 
+  Sentry.captureException(error)
+
   if (env.NODE_ENV !== 'production') {
     console.error(error)
-  } else {
-    // TODO: Send error to Sentry
   }
 
   return reply.status(500).send({ message: 'Internal server error.' })
