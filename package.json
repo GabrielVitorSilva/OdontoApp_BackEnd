@@ -7,7 +7,7 @@
     "dev": "docker compose up -d && tsx watch src/server.ts",
     "studio": "npx prisma studio",
     "start": "node build/server.js",
-    "build": "tsup src --out-dir build",
+    "build": "tsup src --out-dir build --format esm",
     "test": "vitest run",
     "test:watch": "vitest",
     "seed": "tsx prisma/seed.ts"
@@ -28,6 +28,7 @@
     "dotenv": "16.4.5",
     "fastify": "5.1.0",
     "fastify-type-provider-zod": "4.0.2",
+    "tsup": "8.3.5",
     "supertest": "7.1.0",
     "zod": "3.24.2"
   },
@@ -38,7 +39,6 @@
     "@types/supertest": "6.0.3",
     "eslint": "8.57.1",
     "prisma": "5.22.0",
-    "tsup": "8.3.5",
     "tsx": "4.19.2",
     "typescript": "5.6.3",
     "vite-tsconfig-paths": "5.1.2",
