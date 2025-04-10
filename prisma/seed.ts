@@ -199,50 +199,63 @@ async function seed() {
   }
 
   // Criar algumas consultas aleatórias
-  const allTreatments = await prisma.treatment.findMany()
+  const treatmentsWithProfessionals = await prisma.treatment.findMany({
+    include: {
+      professionals: true,
+    },
+  })
 
   for (let i = 0; i < 15; i++) {
-    // Escolher um cliente, profissional e tratamento aleatório
+    // Escolher um cliente aleatório
     const randomClientIndex = Math.floor(Math.random() * clients.length)
     const client = clients[randomClientIndex]
 
-    const randomTreatmentIndex = Math.floor(
-      Math.random() * allTreatments.length,
+    // Escolher um tratamento aleatório que tenha profissionais associados
+    const availableTreatments = treatmentsWithProfessionals.filter(
+      (treatment) => treatment.professionals.length > 0,
     )
-    const treatment = allTreatments[randomTreatmentIndex]
 
-    // Obter o profissional associado ao tratamento
-    const professional = await prisma.professional.findFirst({
-      where: { id: treatment.professionalId },
-    })
-
-    if (professional) {
-      // Gerar uma data aleatória nos próximos 60 dias
-      const futureDate = new Date()
-      futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 60))
-
-      // Ajustar para horário comercial (8h às 18h)
-      futureDate.setHours(8 + Math.floor(Math.random() * 9), 0, 0, 0)
-
-      // Status aleatório
-      const statusOptions: ConsultationStatus[] = [
-        'SCHEDULED',
-        'CANCELED',
-        'COMPLETED',
-      ]
-      const randomStatus =
-        statusOptions[Math.floor(Math.random() * statusOptions.length)]
-
-      await prisma.consultation.create({
-        data: {
-          clientId: client.id,
-          professionalId: professional.id,
-          treatmentId: treatment.id,
-          dateTime: futureDate,
-          status: randomStatus,
-        },
-      })
+    if (availableTreatments.length === 0) {
+      console.log('Nenhum tratamento com profissionais associados encontrado')
+      continue
     }
+
+    const randomTreatmentIndex = Math.floor(
+      Math.random() * availableTreatments.length,
+    )
+    const treatment = availableTreatments[randomTreatmentIndex]
+
+    // Escolher um profissional aleatório associado ao tratamento
+    const randomProfessionalIndex = Math.floor(
+      Math.random() * treatment.professionals.length,
+    )
+    const professional = treatment.professionals[randomProfessionalIndex]
+
+    // Gerar uma data aleatória nos próximos 60 dias
+    const futureDate = new Date()
+    futureDate.setDate(futureDate.getDate() + Math.floor(Math.random() * 60))
+
+    // Ajustar para horário comercial (8h às 18h)
+    futureDate.setHours(8 + Math.floor(Math.random() * 9), 0, 0, 0)
+
+    // Status aleatório
+    const statusOptions: ConsultationStatus[] = [
+      'SCHEDULED',
+      'CANCELED',
+      'COMPLETED',
+    ]
+    const randomStatus =
+      statusOptions[Math.floor(Math.random() * statusOptions.length)]
+
+    await prisma.consultation.create({
+      data: {
+        clientId: client.id,
+        professionalId: professional.id,
+        treatmentId: treatment.id,
+        dateTime: futureDate,
+        status: randomStatus,
+      },
+    })
   }
 
   console.log(`Seed concluído: ${users.length} usuários criados`)

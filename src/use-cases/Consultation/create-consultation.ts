@@ -1,6 +1,7 @@
 import type { ConsultationRepository } from '@/repositories/consultation-repository'
+import type { TreatmentsRepository } from '@/repositories/treatments-repository'
+import type { UsersRepository } from '@/repositories/users-repository'
 import { Consultation } from '@prisma/client'
-import { prisma } from '@/lib/prisma'
 import { ResourceNotFoundError } from '../@errors/resource-not-found-error'
 import { InvalidConsultationDateError } from '../@errors/invalid-consultation-date-error'
 import { ProfessionalNotLinkedToTreatmentError } from '../@errors/professional-not-linked-to-treatment-error'
@@ -20,7 +21,11 @@ interface CreateConsultationUseCaseResponse {
 }
 
 export class CreateConsultationUseCase {
-  constructor(private consultationRepository: ConsultationRepository) {}
+  constructor(
+    private consultationRepository: ConsultationRepository,
+    private treatmentsRepository: TreatmentsRepository,
+    private usersRepository: UsersRepository,
+  ) {}
 
   async execute({
     id,
@@ -36,38 +41,32 @@ export class CreateConsultationUseCase {
     }
 
     // Verificar se o cliente existe
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
-    })
+    const client = await this.usersRepository.findClientById(clientId)
 
     if (!client) {
       throw new ResourceNotFoundError()
     }
 
     // Verificar se o profissional existe
-    const professional = await prisma.professional.findUnique({
-      where: { id: professionalId },
-    })
+    const professional =
+      await this.usersRepository.findProfessionalById(professionalId)
 
     if (!professional) {
       throw new ResourceNotFoundError()
     }
 
     // Verificar se o tratamento existe
-    const treatment = await prisma.treatment.findUnique({
-      where: { id: treatmentId },
-      include: {
-        professionals: true,
-      },
-    })
+    const treatment = await this.treatmentsRepository.findById(treatmentId)
 
     if (!treatment) {
       throw new ResourceNotFoundError()
     }
 
     // Verificar se o profissional está vinculado ao tratamento
-    const isProfessionalLinkedToTreatment = treatment.professionals.some(
-      (p) => p.id === professionalId,
+    const treatmentsByProfessional =
+      await this.treatmentsRepository.findByProfessionalId(professionalId)
+    const isProfessionalLinkedToTreatment = treatmentsByProfessional.some(
+      (t) => t.id === treatmentId,
     )
 
     if (!isProfessionalLinkedToTreatment) {
@@ -82,25 +81,6 @@ export class CreateConsultationUseCase {
       )
 
     if (existingConsultations.length > 0) {
-      throw new ConsultationTimeConflictError()
-    }
-
-    // Verificar se a consulta está dentro do tempo de duração do tratamento
-    const consultationEndTime = new Date(
-      dateTime.getTime() + treatment.durationMinutes * 60000,
-    )
-    const overlappingConsultations = await prisma.consultation.findMany({
-      where: {
-        professionalId,
-        dateTime: {
-          lte: consultationEndTime,
-          gte: dateTime,
-        },
-        status: 'SCHEDULED',
-      },
-    })
-
-    if (overlappingConsultations.length > 0) {
       throw new ConsultationTimeConflictError()
     }
 

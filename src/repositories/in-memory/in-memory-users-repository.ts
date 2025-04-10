@@ -167,4 +167,28 @@ export class InMemoryUsersRepository implements UsersRepository {
 
     return professional
   }
+
+  async findClientById(
+    id: string,
+  ): Promise<{ id: string; userId: string } | null> {
+    const client = this.clients.find((item) => item.id === id)
+
+    if (!client) {
+      return null
+    }
+
+    return client
+  }
+
+  async findProfessionalById(
+    id: string,
+  ): Promise<{ id: string; userId: string } | null> {
+    const professional = this.professionals.find((item) => item.id === id)
+
+    if (!professional) {
+      return null
+    }
+
+    return professional
+  }
 }
