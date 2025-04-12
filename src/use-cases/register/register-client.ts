@@ -2,6 +2,8 @@ import { UsersRepository } from '@/repositories/users-repository'
 import { User } from '@prisma/client'
 import { UserAlreadyExistsError } from '../@errors/user-already-exists-error'
 import bcryptjs from 'bcryptjs'
+import { sendMail } from '@/lib/mail'
+import { generateWelcomeEmail } from '@/lib/templates/welcome-email'
 
 interface RegisterClientUseCaseRequest {
   email: string
@@ -42,6 +44,18 @@ export class RegisterClientUseCase {
     })
 
     await this.usersRepository.createClient(user.id)
+
+    // Enviar email de boas-vindas
+    const emailHtml = generateWelcomeEmail({
+      name: user.name,
+      role: user.role,
+    })
+
+    await sendMail({
+      to: user.email,
+      subject: 'Bem-vindo ao OdontoApp!',
+      html: emailHtml,
+    })
 
     return {
       user,

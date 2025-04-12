@@ -10,6 +10,10 @@ import {
   updateConsultationBodySchema,
   updateConsultationParamsSchema,
 } from '../controllers/consultation/update-consultation'
+import {
+  deleteConsultation,
+  deleteConsultationParamsSchema,
+} from '../controllers/consultation/delete-consultation'
 
 export async function consultationsRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
@@ -49,5 +53,23 @@ export async function consultationsRoutes(appFastify: FastifyInstance) {
       },
     },
     updateConsultation,
+  )
+
+  app.delete(
+    '/consultations/:id',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Consultations'],
+        summary: 'Delete a consultation',
+        params: deleteConsultationParamsSchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    deleteConsultation,
   )
 }

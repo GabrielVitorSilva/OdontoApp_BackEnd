@@ -7,6 +7,8 @@ import { InvalidConsultationDateError } from '../@errors/invalid-consultation-da
 import { ProfessionalNotLinkedToTreatmentError } from '../@errors/professional-not-linked-to-treatment-error'
 import { ConsultationTimeConflictError } from '../@errors/consultation-time-conflict-error'
 import { InvalidConsultationStatusError } from '../@errors/invalid-consultation-status-error'
+import { sendMail } from '@/lib/mail'
+import { generateConsultationUpdateEmail } from '@/lib/templates/consultation-update'
 
 interface UpdateConsultationUseCaseRequest {
   id: string
@@ -127,6 +129,32 @@ export class UpdateConsultationUseCase {
       dateTime,
       status,
     })
+
+    // Enviar email de atualização
+    const client = await this.usersRepository.findClientById(consultation.clientId)
+    const professional = await this.usersRepository.findProfessionalById(consultation.professionalId)
+    const treatment = await this.treatmentsRepository.findById(consultation.treatmentId)
+
+    if (client && professional && treatment) {
+      const clientUser = await this.usersRepository.findById(client.userId)
+      const professionalUser = await this.usersRepository.findById(professional.userId)
+
+      if (clientUser && professionalUser) {
+        const emailHtml = generateConsultationUpdateEmail({
+          clientName: clientUser.name,
+          professionalName: professionalUser.name,
+          treatmentName: treatment.name,
+          dateTime: consultation.dateTime,
+          status: consultation.status,
+        })
+
+        await sendMail({
+          to: clientUser.email,
+          subject: 'Atualização de Consulta - OdontoApp',
+          html: emailHtml,
+        })
+      }
+    }
 
     return { consultation }
   }

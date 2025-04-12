@@ -3,6 +3,8 @@ import { User } from '@prisma/client'
 import { UserAlreadyExistsError } from '../@errors/user-already-exists-error'
 import bcryptjs from 'bcryptjs'
 import { NotAllowedToCreate } from '../@errors/not-allowed-to-create'
+import { sendMail } from '@/lib/mail'
+import { generateWelcomeEmail } from '@/lib/templates/welcome-email'
 
 interface RegisterUseCaseRequest {
   email: string
@@ -64,6 +66,18 @@ export class RegisterUseCase {
     } else if (role === 'ADMIN') {
       await this.usersRepository.createAdmin(user.id)
     }
+
+    // Enviar email de boas-vindas
+    const emailHtml = generateWelcomeEmail({
+      name: user.name,
+      role: user.role,
+    })
+
+    await sendMail({
+      to: user.email,
+      subject: 'Bem-vindo ao OdontoApp!',
+      html: emailHtml,
+    })
 
     return {
       user,
