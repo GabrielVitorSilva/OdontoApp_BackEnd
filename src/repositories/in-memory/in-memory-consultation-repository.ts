@@ -81,4 +81,8 @@ export class InMemoryConsultationRepository implements ConsultationRepository {
         item.status === 'SCHEDULED',
     )
   }
+
+  async findByProfessionalId(professionalId: string): Promise<Consultation[]> {
+    return this.items.filter((item) => item.professionalId === professionalId)
+  }
 }

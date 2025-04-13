@@ -65,4 +65,17 @@ export class PrismaConsultationRepository implements ConsultationRepository {
 
     return consultations
   }
+
+  async findByProfessionalId(professionalId: string): Promise<Consultation[]> {
+    const consultations = await prisma.consultation.findMany({
+      where: {
+        professionalId,
+      },
+      include: {
+        treatment: true,
+      },
+    })
+
+    return consultations
+  }
 }
