@@ -93,4 +93,4 @@ describe('Delete Consultation Use Case', () => {
       sut.execute({ id: 'non-existent-id' }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError)
   })
-}) 
+})

@@ -21,12 +21,18 @@ export class DeleteConsultationUseCase {
       throw new ResourceNotFoundError()
     }
 
-    const client = await this.usersRepository.findClientById(consultation.clientId)
-    const professional = await this.usersRepository.findProfessionalById(consultation.professionalId)
+    const client = await this.usersRepository.findClientById(
+      consultation.clientId,
+    )
+    const professional = await this.usersRepository.findProfessionalById(
+      consultation.professionalId,
+    )
 
     if (client && professional) {
       const clientUser = await this.usersRepository.findById(client.userId)
-      const professionalUser = await this.usersRepository.findById(professional.userId)
+      const professionalUser = await this.usersRepository.findById(
+        professional.userId,
+      )
 
       if (clientUser && professionalUser) {
         const emailHtml = generateConsultationDeleteEmail({
@@ -45,4 +51,4 @@ export class DeleteConsultationUseCase {
 
     await this.consultationRepository.delete(id)
   }
-} 
+}

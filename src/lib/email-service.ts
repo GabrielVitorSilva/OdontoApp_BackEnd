@@ -1,8 +1,8 @@
-import nodemailer from 'nodemailer';
-import { env } from '../env';
+import nodemailer from 'nodemailer'
+import { env } from '../env'
 
 export class EmailService {
-  private transporter: nodemailer.Transporter;
+  private transporter: nodemailer.Transporter
 
   constructor() {
     this.transporter = nodemailer.createTransport({
@@ -13,7 +13,7 @@ export class EmailService {
         user: env.SMTP_USER,
         pass: env.SMTP_PASS,
       },
-    });
+    })
   }
 
   async sendConsultationReminder(
@@ -21,7 +21,7 @@ export class EmailService {
     clientName: string,
     professionalName: string,
     treatmentName: string,
-    dateTime: Date
+    dateTime: Date,
   ) {
     const formattedDate = new Date(dateTime).toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -29,7 +29,7 @@ export class EmailService {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
+    })
 
     await this.transporter.sendMail({
       from: env.SMTP_FROM,
@@ -47,6 +47,6 @@ export class EmailService {
         <p>Por favor, chegue com 15 minutos de antecedência.</p>
         <p>Atenciosamente,<br>Equipe OdontoApp</p>
       `,
-    });
+    })
   }
-} 
+}

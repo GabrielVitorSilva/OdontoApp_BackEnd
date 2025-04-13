@@ -17,9 +17,11 @@ export async function listConsultationsByProfessional(
   const listConsultationByProfessionalUseCase =
     makeListConsultationByProfessionalUseCase()
 
-  const { consultations } = await listConsultationByProfessionalUseCase.execute({
-    professionalId,
-  })
+  const { consultations } = await listConsultationByProfessionalUseCase.execute(
+    {
+      professionalId,
+    },
+  )
 
   return reply.status(200).send({ consultations })
-} 
+}

@@ -58,4 +58,4 @@ export function generateConsultationUpdateEmail({
       </body>
     </html>
   `
-} 
+}

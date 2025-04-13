@@ -131,13 +131,21 @@ export class UpdateConsultationUseCase {
     })
 
     // Enviar email de atualização
-    const client = await this.usersRepository.findClientById(consultation.clientId)
-    const professional = await this.usersRepository.findProfessionalById(consultation.professionalId)
-    const treatment = await this.treatmentsRepository.findById(consultation.treatmentId)
+    const client = await this.usersRepository.findClientById(
+      consultation.clientId,
+    )
+    const professional = await this.usersRepository.findProfessionalById(
+      consultation.professionalId,
+    )
+    const treatment = await this.treatmentsRepository.findById(
+      consultation.treatmentId,
+    )
 
     if (client && professional && treatment) {
       const clientUser = await this.usersRepository.findById(client.userId)
-      const professionalUser = await this.usersRepository.findById(professional.userId)
+      const professionalUser = await this.usersRepository.findById(
+        professional.userId,
+      )
 
       if (clientUser && professionalUser) {
         const emailHtml = generateConsultationUpdateEmail({
