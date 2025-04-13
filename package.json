@@ -8,8 +8,8 @@
     "studio": "npx prisma studio",
     "start": "node build/server.js",
     "build": "tsup src --out-dir build --format esm",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "NODE_ENV=test vitest run",
+    "test:watch": "NODE_ENV=test vitest",
     "seed": "tsx prisma/seed.ts"
   },
   "keywords": [],

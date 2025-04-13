@@ -17,6 +17,10 @@ export interface SendMailData {
 }
 
 export async function sendMail({ to, subject, html }: SendMailData) {
+  if (process.env.NODE_ENV === 'test') {
+    return
+  }
+
   await transport.sendMail({
     from: env.SMTP_FROM,
     to,
