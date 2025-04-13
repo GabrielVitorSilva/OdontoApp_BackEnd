@@ -14,6 +14,10 @@ import {
   deleteConsultation,
   deleteConsultationParamsSchema,
 } from '../controllers/consultation/delete-consultation'
+import {
+  listConsultationsByProfessional,
+  listConsultationsByProfessionalParamsSchema,
+} from '../controllers/consultation/list-consultations-by-professional'
 
 export async function consultationsRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
@@ -71,5 +75,23 @@ export async function consultationsRoutes(appFastify: FastifyInstance) {
       },
     },
     deleteConsultation,
+  )
+
+  app.get(
+    '/professionals/:professionalId/consultations',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Consultations'],
+        summary: 'List consultations by professional',
+        params: listConsultationsByProfessionalParamsSchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    listConsultationsByProfessional,
   )
 }
