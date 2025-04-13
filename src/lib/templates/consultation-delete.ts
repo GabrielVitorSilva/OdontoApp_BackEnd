@@ -44,4 +44,4 @@ export function generateConsultationDeleteEmail({
       </body>
     </html>
   `
-} 
+}

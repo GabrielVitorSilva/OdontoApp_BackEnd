@@ -26,4 +26,4 @@ export async function deleteConsultation(
     console.error(error)
     return reply.status(500).send({ message: 'Erro interno do servidor' })
   }
-} 
+}

@@ -12,4 +12,4 @@ export function makeDeleteConsultationUseCase() {
   )
 
   return useCase
-} 
+}

@@ -106,4 +106,4 @@ describe('List Consultation By Professional Use Case', () => {
 
     expect(consultations).toHaveLength(0)
   })
-}) 
+})

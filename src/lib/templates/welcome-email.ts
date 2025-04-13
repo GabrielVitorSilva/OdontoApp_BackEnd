@@ -42,4 +42,4 @@ export function generateWelcomeEmail({ name, role }: WelcomeEmailProps) {
       </body>
     </html>
   `
-} 
+}

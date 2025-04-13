@@ -10,7 +10,9 @@
     "build": "tsup src --out-dir build --format esm",
     "test": "NODE_ENV=test vitest run",
     "test:watch": "NODE_ENV=test vitest",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "reminder-job": "tsx src/scripts/run-reminder-job.ts",
+    "lint": "eslint . --ext .ts"
   },
   "keywords": [],
   "author": "",
