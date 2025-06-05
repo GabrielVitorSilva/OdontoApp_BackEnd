@@ -1,0 +1,57 @@
+services:
+  server:
+    image: ghcr.io/gabrielvitorsilva/odontoapp_backend:main
+    container_name: odonto_server
+    restart: always
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.production
+    command: sh -c "npx prisma migrate deploy && node build/server.js"
+
+  db:
+    image: postgres
+    container_name: odonto_database
+    restart: always
+    user: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_DB: odonto_app
+      POSTGRES_PASSWORD: docker
+    expose:
+      - 5432
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "docker", "-d", "odonto_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: odonto_watchtower
+    volumes:
+      - /root/.docker/config.json:/config.json
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30
+
+networks:
+  frontend:
+    external: true
+    name: proxy_network
+  backend:
+    driver: bridge
+
+volumes:
+  db-data:
