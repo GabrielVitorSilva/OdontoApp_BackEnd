@@ -107,9 +107,6 @@ export class PrismaTreatmentsRepository implements TreatmentsRepository {
           },
         },
       },
-      include: {
-        professionals: true,
-      },
     })
 
     return treatment
