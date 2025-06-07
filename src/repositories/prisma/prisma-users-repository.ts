@@ -124,6 +124,18 @@ export class PrismaUsersRepository implements UsersRepository {
     return professional
   }
 
+  async findClientByUserId(
+    userId: string,
+  ): Promise<{ id: string; userId: string } | null> {
+    const client = await prisma.client.findUnique({
+      where: {
+        userId,
+      },
+    })
+
+    return client
+  }
+
   async findClientById(
     id: string,
   ): Promise<{ id: string; userId: string } | null> {

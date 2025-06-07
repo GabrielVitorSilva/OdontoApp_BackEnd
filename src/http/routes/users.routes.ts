@@ -14,6 +14,7 @@ import {
 } from '../controllers/users/delete-user'
 import { listUsers } from '../controllers/users/list-users'
 import { listProfessionals } from '../controllers/users/list-professionals'
+import { listClients } from '../controllers/users/list-clients'
 
 export async function usersRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
@@ -122,5 +123,22 @@ export async function usersRoutes(appFastify: FastifyInstance) {
       },
     },
     listProfessionals,
+  )
+
+  app.get(
+    '/clients',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Users'],
+        summary: 'List all clients',
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    listClients,
   )
 }

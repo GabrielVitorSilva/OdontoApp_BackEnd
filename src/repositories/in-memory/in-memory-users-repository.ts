@@ -3,6 +3,7 @@ import { User, Prisma, Role } from '@prisma/client'
 import { randomUUID } from 'node:crypto'
 
 export class InMemoryUsersRepository implements UsersRepository {
+ 
   public items: User[] = []
   public clients: { id: string; userId: string }[] = []
   public professionals: { id: string; userId: string }[] = []
@@ -166,6 +167,19 @@ export class InMemoryUsersRepository implements UsersRepository {
     return professional
   }
 
+  async findClientByUserId(
+    userId: string,
+  ): Promise<{ id: string; userId: string } | null> {
+    const client = this.clients.find(
+      (item) => item.userId === userId,
+    )
+
+    if (!client) {
+      return null
+    }
+
+    return client
+  }
   async findClientById(
     id: string,
   ): Promise<{ id: string; userId: string } | null> {
