@@ -1,0 +1,498 @@
+# Documentação do OdontoApp Backend
+
+## Índice
+1. [Visão Geral](#visão-geral)
+2. [Arquitetura](#arquitetura)
+3. [Padrões de Projeto](#padrões-de-projeto)
+4. [Tecnologias](#tecnologias)
+5. [Configuração do Ambiente](#configuração-do-ambiente)
+6. [Estrutura do Projeto](#estrutura-do-projeto)
+7. [Funcionalidades](#funcionalidades)
+8. [Testes](#testes)
+9. [Monitoramento](#monitoramento)
+10. [Deploy](#deploy)
+11. [Diagramas](#diagramas)
+
+## Visão Geral
+
+O OdontoApp é um sistema backend para gerenciamento de clínicas odontológicas, desenvolvido com Node.js, TypeScript e Fastify. O sistema oferece funcionalidades para gerenciamento de pacientes, agendamentos, prontuários e comunicação.
+
+## Arquitetura
+
+O projeto segue uma arquitetura em camadas:
+
+```
+┌─────────────────┐
+│    HTTP Layer   │  # Controladores e Rotas
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│  Use Cases      │  # Lógica de Negócio
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│  Repositories   │  # Acesso a Dados
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│  Database       │  # PostgreSQL
+└─────────────────┘
+```
+
+## Padrões de Projeto
+
+O OdontoApp utiliza diversos padrões de projeto para manter o código organizado, testável e manutenível. Abaixo estão os principais padrões implementados:
+
+### 1. Repository Pattern
+Utilizado para abstrair a camada de acesso a dados.
+
+```typescript
+// src/repositories/patients-repository.ts
+export interface PatientsRepository {
+  create(data: CreatePatientDTO): Promise<Patient>
+  findById(id: string): Promise<Patient | null>
+  findByEmail(email: string): Promise<Patient | null>
+  update(id: string, data: UpdatePatientDTO): Promise<Patient>
+  delete(id: string): Promise<void>
+}
+
+// Implementação Prisma
+export class PrismaPatientsRepository implements PatientsRepository {
+  constructor(private prisma: PrismaClient) {}
+
+  async create(data: CreatePatientDTO): Promise<Patient> {
+    return this.prisma.patient.create({ data })
+  }
+  // ... outros métodos
+}
+```
+
+### 2. Factory Pattern
+Utilizado para criar instâncias de classes de forma centralizada.
+
+```typescript
+// src/factories/make-create-appointment-use-case.ts
+export function makeCreateAppointmentUseCase() {
+  const appointmentsRepository = new PrismaAppointmentsRepository(prisma)
+  const patientsRepository = new PrismaPatientsRepository(prisma)
+  const emailService = new NodemailerEmailService()
+  
+  return new CreateAppointmentUseCase(
+    appointmentsRepository,
+    patientsRepository,
+    emailService
+  )
+}
+```
+
+### 3. Dependency Injection
+Utilizado para injetar dependências nas classes.
+
+```typescript
+// src/use-cases/create-appointment.ts
+export class CreateAppointmentUseCase {
+  constructor(
+    private appointmentsRepository: AppointmentsRepository,
+    private patientsRepository: PatientsRepository,
+    private emailService: EmailService
+  ) {}
+
+  async execute(data: CreateAppointmentDTO) {
+    // Lógica do caso de uso
+  }
+}
+```
+
+### 4. Strategy Pattern
+Utilizado para diferentes estratégias de envio de email.
+
+```typescript
+// src/lib/email/email-service.ts
+export interface EmailService {
+  sendEmail(data: SendEmailDTO): Promise<void>
+}
+
+// Implementação Nodemailer
+export class NodemailerEmailService implements EmailService {
+  async sendEmail(data: SendEmailDTO): Promise<void> {
+    // Implementação com Nodemailer
+  }
+}
+
+// Implementação SendGrid (alternativa)
+export class SendGridEmailService implements EmailService {
+  async sendEmail(data: SendEmailDTO): Promise<void> {
+    // Implementação com SendGrid
+  }
+}
+```
+
+### 5. Adapter Pattern
+Utilizado para adaptar interfaces externas.
+
+```typescript
+// src/lib/adapters/sentry-error-adapter.ts
+export class SentryErrorAdapter implements ErrorTracker {
+  constructor(private sentry: typeof Sentry) {}
+
+  captureException(error: Error): void {
+    this.sentry.captureException(error)
+  }
+
+  captureMessage(message: string): void {
+    this.sentry.captureMessage(message)
+  }
+}
+```
+
+### 6. Singleton Pattern
+Utilizado para instâncias únicas de serviços.
+
+```typescript
+// src/lib/prisma.ts
+export class PrismaClient {
+  private static instance: PrismaClient
+
+  private constructor() {
+    // Inicialização do cliente Prisma
+  }
+
+  public static getInstance(): PrismaClient {
+    if (!PrismaClient.instance) {
+      PrismaClient.instance = new PrismaClient()
+    }
+    return PrismaClient.instance
+  }
+}
+```
+
+### 7. Observer Pattern
+Utilizado para notificações de eventos.
+
+```typescript
+// src/lib/events/event-manager.ts
+export class EventManager {
+  private listeners: Map<string, Function[]> = new Map()
+
+  subscribe(event: string, callback: Function): void {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, [])
+    }
+    this.listeners.get(event)?.push(callback)
+  }
+
+  notify(event: string, data: any): void {
+    const callbacks = this.listeners.get(event) || []
+    callbacks.forEach(callback => callback(data))
+  }
+}
+
+// Uso em um caso de uso
+export class CreateAppointmentUseCase {
+  constructor(
+    private eventManager: EventManager,
+    // ... outras dependências
+  ) {}
+
+  async execute(data: CreateAppointmentDTO) {
+    // ... lógica de criação
+    this.eventManager.notify('appointment.created', appointment)
+  }
+}
+```
+
+### 8. Middleware Pattern
+Utilizado para interceptar requisições HTTP.
+
+```typescript
+// src/http/middlewares/ensure-authenticated.ts
+export const ensureAuthenticated: FastifyMiddleware = async (request, reply) => {
+  try {
+    const token = request.headers.authorization?.replace('Bearer ', '')
+    
+    if (!token) {
+      throw new Error('Token não fornecido')
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    request.user = decoded
+
+    return
+  } catch (error) {
+    return reply.status(401).send({ error: 'Não autorizado' })
+  }
+}
+```
+
+### 9. Command Pattern
+Utilizado para encapsular operações em objetos.
+
+```typescript
+// src/use-cases/commands/create-appointment-command.ts
+export class CreateAppointmentCommand {
+  constructor(
+    private data: CreateAppointmentDTO,
+    private repository: AppointmentsRepository
+  ) {}
+
+  async execute(): Promise<Appointment> {
+    // Lógica de criação do agendamento
+    return this.repository.create(this.data)
+  }
+}
+```
+
+### 10. Value Object Pattern
+Utilizado para representar conceitos do domínio.
+
+```typescript
+// src/domain/value-objects/email.ts
+export class Email {
+  private constructor(private readonly value: string) {}
+
+  static create(email: string): Result<Email> {
+    if (!this.isValid(email)) {
+      return Result.fail<Email>('Email inválido')
+    }
+
+    return Result.ok<Email>(new Email(email))
+  }
+
+  private static isValid(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email)
+  }
+
+  getValue(): string {
+    return this.value
+  }
+}
+```
+
+## Tecnologias
+
+- **Runtime**: Node.js 20.x
+- **Framework**: Fastify
+- **Linguagem**: TypeScript
+- **Banco de Dados**: PostgreSQL
+- **ORM**: Prisma
+- **Testes**: Vitest
+- **Monitoramento**: Sentry
+- **Email**: Nodemailer
+- **Documentação**: Swagger/OpenAPI
+- **Containerização**: Docker
+
+## Configuração do Ambiente
+
+### Variáveis de Ambiente
+
+```env
+NODE_ENV=dev
+DATABASE_URL="postgresql://docker:docker@localhost:5432/odonto-app?schema=public"
+JWT_SECRET="seu-segredo-jwt"
+SENTRY_DSN="seu-dsn-sentry"
+
+# Configuração de Email
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=seu-email@gmail.com
+SMTP_PASS=sua-senha
+SMTP_FROM=seu-email@gmail.com
+```
+
+### Scripts Disponíveis
+
+```bash
+# Desenvolvimento
+npm run dev        # Inicia o servidor em modo desenvolvimento
+npm run studio     # Abre o Prisma Studio
+
+# Build e Produção
+npm run build      # Compila o projeto
+npm run start      # Inicia o servidor em produção
+
+# Testes
+npm run test       # Executa os testes
+npm run test:watch # Executa os testes em modo watch
+
+# Utilitários
+npm run seed       # Popula o banco com dados iniciais
+npm run reminder-job # Executa o job de lembretes
+npm run lint       # Executa o linter
+```
+
+## Estrutura do Projeto
+
+```
+OdontoApp_BackEnd/
+├── src/
+│   ├── app.ts                 # Configuração principal
+│   ├── server.ts             # Ponto de entrada
+│   ├── http/                 # Controladores e rotas
+│   ├── use-cases/           # Casos de uso
+│   ├── repositories/        # Acesso a dados
+│   ├── lib/                 # Utilitários
+│   ├── scripts/             # Scripts
+│   ├── env/                 # Configurações
+│   └── @types/              # Tipos TypeScript
+├── prisma/
+│   ├── schema.prisma        # Schema do banco
+│   ├── seed.ts             # Dados iniciais
+│   └── migrations/         # Migrações
+└── [configurações]
+```
+
+## Funcionalidades
+
+### 1. Autenticação e Autorização
+- Login com JWT
+- Controle de acesso baseado em roles
+- Refresh token
+
+### 2. Gerenciamento de Pacientes
+- CRUD completo de pacientes
+- Histórico de atendimentos
+- Prontuário eletrônico
+
+### 3. Agendamento
+- Marcação de consultas
+- Sistema de lembretes por email
+- Confirmação automática
+
+### 4. Comunicação
+- Envio de emails automáticos
+- Lembretes de consultas
+- Notificações de status
+
+## Testes
+
+### Testes Unitários
+- Utiliza Vitest como framework
+- Cobertura de código
+
+### Executando Testes
+```bash
+# Todos os testes
+npm run test
+
+# Testes em modo watch
+npm run test:watch
+
+# Testes específicos
+npm run test -- src/use-cases/create-appointment
+```
+
+## Monitoramento
+
+### Sentry
+- Monitoramento de erros em tempo real
+- Rastreamento de performance
+- Alertas configuráveis
+
+### Logs
+- Logs estruturados
+- Níveis de log configuráveis
+- Rotação de logs
+
+## Deploy
+
+### Docker
+```dockerfile
+# Build da imagem
+docker build -t odontoapp .
+
+# Execução
+docker run -p 3333:3333 odontoapp
+```
+
+### Docker Compose
+```yaml
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "3333:3333"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=odonto-app
+```
+
+## Diagramas
+
+### Diagrama de Classes
+```mermaid
+classDiagram
+    class Controller {
+        +handle()
+    }
+    class UseCase {
+        +execute()
+    }
+    class Repository {
+        +create()
+        +find()
+        +update()
+        +delete()
+    }
+    Controller --> UseCase
+    UseCase --> Repository
+```
+
+### Diagrama de Banco de Dados
+```mermaid
+erDiagram
+    User ||--o{ Appointment : creates
+    Patient ||--o{ Appointment : has
+    User {
+        string id
+        string name
+        string email
+        string password
+        string role
+    }
+    Patient {
+        string id
+        string name
+        string email
+        string phone
+        date birthDate
+    }
+    Appointment {
+        string id
+        datetime date
+        string status
+        string patientId
+        string userId
+    }
+```
+
+### Diagrama de Casos de Uso
+```mermaid
+graph TD
+    A[Paciente] --> C[Agendamento]
+    B[Dentista] --> C
+    C --> D[Prontuário]
+    C --> E[Email]
+    E --> F[Lembrete]
+```
+
+## Contribuição
+
+1. Fork o projeto
+2. Crie sua branch de feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes. 
