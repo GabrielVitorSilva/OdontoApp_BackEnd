@@ -526,12 +526,146 @@ erDiagram
 ### Diagrama de Casos de Uso
 ```mermaid
 graph TD
-    A[Paciente] --> C[Agendamento]
-    B[Dentista] --> C
-    C --> D[Prontuário]
-    C --> E[Email]
-    E --> F[Lembrete]
+    %% Atores
+    A[Cliente]
+    B[Profissional]
+    C[Administrador]
+    D[Sistema]
+
+    %% Casos de Uso do Cliente
+    A --> UC1[Agendar Consulta]
+    A --> UC2[Cancelar Consulta]
+    A --> UC3[Visualizar Histórico]
+    A --> UC4[Receber Notificações]
+    A --> UC5[Gerenciar Perfil]
+
+    %% Casos de Uso do Profissional
+    B --> UC6[Gerenciar Agenda]
+    B --> UC7[Registrar Tratamento]
+    B --> UC8[Atualizar Status Consulta]
+    B --> UC9[Visualizar Prontuário]
+    B --> UC10[Gerenciar Perfil]
+
+    %% Casos de Uso do Administrador
+    C --> UC11[Gerenciar Usuários]
+    C --> UC12[Gerenciar Tratamentos]
+    C --> UC13[Gerar Relatórios]
+    C --> UC14[Configurar Sistema]
+
+    %% Casos de Uso do Sistema
+    D --> UC15[Enviar Lembretes]
+    D --> UC16[Notificar Status]
+    D --> UC17[Registrar Logs]
+    D --> UC18[Monitorar Erros]
+
+    %% Relacionamentos
+    UC1 --> UC15
+    UC1 --> UC16
+    UC2 --> UC16
+    UC7 --> UC17
+    UC8 --> UC16
+    UC11 --> UC17
+    UC14 --> UC17
+    UC15 --> UC18
+    UC16 --> UC18
 ```
+
+### Descrição dos Casos de Uso
+
+#### Cliente
+1. **Agendar Consulta**
+   - Selecionar profissional
+   - Escolher tratamento
+   - Definir data e hora
+   - Receber confirmação
+
+2. **Cancelar Consulta**
+   - Visualizar consultas agendadas
+   - Selecionar consulta para cancelar
+   - Confirmar cancelamento
+
+3. **Visualizar Histórico**
+   - Acessar histórico de consultas
+   - Ver tratamentos realizados
+   - Consultar prontuário
+
+4. **Receber Notificações**
+   - Receber lembretes de consulta
+   - Notificações de status
+   - Alertas do sistema
+
+5. **Gerenciar Perfil**
+   - Atualizar dados pessoais
+   - Alterar senha
+   - Configurar preferências
+
+#### Profissional
+6. **Gerenciar Agenda**
+   - Visualizar consultas
+   - Definir horários disponíveis
+   - Ajustar agenda
+
+7. **Registrar Tratamento**
+   - Cadastrar novo tratamento
+   - Atualizar informações
+   - Definir preços
+
+8. **Atualizar Status Consulta**
+   - Marcar como realizada
+   - Registrar observações
+   - Atualizar prontuário
+
+9. **Visualizar Prontuário**
+   - Acessar histórico do paciente
+   - Ver tratamentos anteriores
+   - Consultar anotações
+
+10. **Gerenciar Perfil**
+    - Atualizar dados profissionais
+    - Configurar especialidades
+    - Gerenciar disponibilidade
+
+#### Administrador
+11. **Gerenciar Usuários**
+    - Cadastrar novos usuários
+    - Definir permissões
+    - Bloquear/desbloquear acesso
+
+12. **Gerenciar Tratamentos**
+    - Cadastrar tratamentos
+    - Definir preços
+    - Atualizar descrições
+
+13. **Gerar Relatórios**
+    - Relatórios financeiros
+    - Relatórios de atendimento
+    - Estatísticas do sistema
+
+14. **Configurar Sistema**
+    - Configurar parâmetros
+    - Gerenciar integrações
+    - Definir políticas
+
+#### Sistema
+15. **Enviar Lembretes**
+    - Lembretes de consulta
+    - Notificações automáticas
+    - Alertas do sistema
+
+16. **Notificar Status**
+    - Atualizações de consulta
+    - Confirmações
+    - Alertas importantes
+
+17. **Registrar Logs**
+    - Logs de acesso
+    - Logs de operações
+    - Logs de erro
+
+18. **Monitorar Erros**
+    - Captura de exceções
+    - Monitoramento de performance
+    - Alertas de sistema
 
 ## Contribuição
 
