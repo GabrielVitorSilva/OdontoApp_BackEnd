@@ -450,28 +450,76 @@ classDiagram
 ### Diagrama de Banco de Dados
 ```mermaid
 erDiagram
-    User ||--o{ Appointment : creates
-    Patient ||--o{ Appointment : has
+    User ||--o{ Notification : receives
+    User ||--|| Client : has
+    User ||--|| Professional : has
+    User ||--|| Administrator : has
+    Professional }o--o{ Treatment : provides
+    Client ||--o{ Consultation : schedules
+    Professional ||--o{ Consultation : performs
+    Treatment ||--o{ Consultation : includes
+
     User {
         string id
         string name
         string email
+        string cpf
         string password
-        string role
+        string phone
+        enum role
+        datetime createdAt
+        datetime updatedAt
     }
-    Patient {
+
+    Client {
+        string id
+        string userId
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    Professional {
+        string id
+        string userId
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    Administrator {
+        string id
+        string userId
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    Treatment {
         string id
         string name
-        string email
-        string phone
-        date birthDate
+        string description
+        int durationMinutes
+        float price
+        datetime createdAt
+        datetime updatedAt
     }
-    Appointment {
+
+    Consultation {
         string id
-        datetime date
-        string status
-        string patientId
+        string clientId
+        string professionalId
+        string treatmentId
+        datetime dateTime
+        enum status
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    Notification {
+        string id
         string userId
+        string message
+        boolean viewed
+        datetime sentAt
+        datetime createdAt
     }
 ```
 
