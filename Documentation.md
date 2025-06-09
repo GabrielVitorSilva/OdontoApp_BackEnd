@@ -447,6 +447,244 @@ classDiagram
     UseCase --> Repository
 ```
 
+### Diagramas de Classes por Módulo
+
+#### 1. Módulo de Autenticação
+```mermaid
+classDiagram
+    class AuthController {
+        +login()
+        +register()
+        +refreshToken()
+    }
+    class AuthUseCase {
+        +authenticate()
+        +validateToken()
+        +createUser()
+    }
+    class UserRepository {
+        +findByEmail()
+        +create()
+        +update()
+    }
+    class JWTService {
+        +sign()
+        +verify()
+        +decode()
+    }
+    AuthController --> AuthUseCase
+    AuthUseCase --> UserRepository
+    AuthUseCase --> JWTService
+```
+
+#### 2. Módulo de Agendamento
+```mermaid
+classDiagram
+    class AppointmentController {
+        +create()
+        +cancel()
+        +list()
+        +update()
+    }
+    class AppointmentUseCase {
+        +schedule()
+        +cancel()
+        +reschedule()
+    }
+    class AppointmentRepository {
+        +create()
+        +findById()
+        +findByDate()
+        +update()
+    }
+    class NotificationService {
+        +sendReminder()
+        +sendConfirmation()
+        +sendCancellation()
+    }
+    AppointmentController --> AppointmentUseCase
+    AppointmentUseCase --> AppointmentRepository
+    AppointmentUseCase --> NotificationService
+```
+
+#### 3. Módulo de Pacientes
+```mermaid
+classDiagram
+    class PatientController {
+        +create()
+        +update()
+        +findById()
+        +list()
+    }
+    class PatientUseCase {
+        +register()
+        +update()
+        +getHistory()
+    }
+    class PatientRepository {
+        +create()
+        +findById()
+        +findByEmail()
+        +update()
+    }
+    class MedicalRecord {
+        +addNote()
+        +getHistory()
+        +updateStatus()
+    }
+    PatientController --> PatientUseCase
+    PatientUseCase --> PatientRepository
+    PatientUseCase --> MedicalRecord
+```
+
+#### 4. Módulo de Profissionais
+```mermaid
+classDiagram
+    class ProfessionalController {
+        +create()
+        +update()
+        +list()
+        +getSchedule()
+    }
+    class ProfessionalUseCase {
+        +register()
+        +updateAvailability()
+        +getAppointments()
+    }
+    class ProfessionalRepository {
+        +create()
+        +findById()
+        +update()
+    }
+    class ScheduleService {
+        +checkAvailability()
+        +blockTime()
+        +getAvailableSlots()
+    }
+    ProfessionalController --> ProfessionalUseCase
+    ProfessionalUseCase --> ProfessionalRepository
+    ProfessionalUseCase --> ScheduleService
+```
+
+#### 5. Módulo de Tratamentos
+```mermaid
+classDiagram
+    class TreatmentController {
+        +create()
+        +update()
+        +list()
+        +getDetails()
+    }
+    class TreatmentUseCase {
+        +register()
+        +update()
+        +calculatePrice()
+    }
+    class TreatmentRepository {
+        +create()
+        +findById()
+        +update()
+    }
+    class PriceCalculator {
+        +calculate()
+        +applyDiscount()
+        +validatePrice()
+    }
+    TreatmentController --> TreatmentUseCase
+    TreatmentUseCase --> TreatmentRepository
+    TreatmentUseCase --> PriceCalculator
+```
+
+#### 6. Módulo de Notificações
+```mermaid
+classDiagram
+    class NotificationController {
+        +send()
+        +list()
+        +markAsRead()
+    }
+    class NotificationUseCase {
+        +create()
+        +send()
+        +processQueue()
+    }
+    class NotificationRepository {
+        +create()
+        +findByUser()
+        +update()
+    }
+    class EmailService {
+        +send()
+        +validate()
+        +format()
+    }
+    class SMSService {
+        +send()
+        +validate()
+        +format()
+    }
+    NotificationController --> NotificationUseCase
+    NotificationUseCase --> NotificationRepository
+    NotificationUseCase --> EmailService
+    NotificationUseCase --> SMSService
+```
+
+#### 7. Módulo de Administração
+```mermaid
+classDiagram
+    class AdminController {
+        +manageUsers()
+        +manageSettings()
+        +generateReports()
+    }
+    class AdminUseCase {
+        +createUser()
+        +updateSettings()
+        +generateReport()
+    }
+    class AdminRepository {
+        +createUser()
+        +updateSettings()
+        +getStatistics()
+    }
+    class ReportGenerator {
+        +generateFinancial()
+        +generateAttendance()
+        +generatePerformance()
+    }
+    AdminController --> AdminUseCase
+    AdminUseCase --> AdminRepository
+    AdminUseCase --> ReportGenerator
+```
+
+#### 8. Módulo de Monitoramento
+```mermaid
+classDiagram
+    class MonitoringController {
+        +getMetrics()
+        +getLogs()
+        +getErrors()
+    }
+    class MonitoringUseCase {
+        +trackError()
+        +collectMetrics()
+        +analyzePerformance()
+    }
+    class LogRepository {
+        +create()
+        +findByDate()
+        +findByType()
+    }
+    class SentryAdapter {
+        +captureException()
+        +captureMessage()
+        +setContext()
+    }
+    MonitoringController --> MonitoringUseCase
+    MonitoringUseCase --> LogRepository
+    MonitoringUseCase --> SentryAdapter
+```
+
 ### Diagrama de Banco de Dados
 ```mermaid
 erDiagram
