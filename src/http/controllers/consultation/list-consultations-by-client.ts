@@ -14,14 +14,11 @@ export async function listConsultationsByClient(
     request.params,
   )
 
-  const listConsultationByClientUseCase =
-    makeListConsultationByClientUseCase()
+  const listConsultationByClientUseCase = makeListConsultationByClientUseCase()
 
-  const { consultations } = await listConsultationByClientUseCase.execute(
-    {
-      clientId,
-    },
-  )
+  const { consultations } = await listConsultationByClientUseCase.execute({
+    clientId,
+  })
 
   return reply.status(200).send({ consultations })
 }

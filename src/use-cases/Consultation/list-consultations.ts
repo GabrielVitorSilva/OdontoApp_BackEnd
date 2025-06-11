@@ -1,42 +1,37 @@
-import { ConsultationRepository } from "@/repositories/consultation-repository";
-import { Consultation } from "@prisma/client";
-import { NotAuthorizedError } from "../@errors/not-authorized-error";
-import { UsersRepository } from "@/repositories/users-repository";
+import { ConsultationRepository } from '@/repositories/consultation-repository'
+import { Consultation } from '@prisma/client'
+import { UsersRepository } from '@/repositories/users-repository'
+import { ResourceNotFoundError } from '../@errors/resource-not-found'
+import { NotAllowed } from '../@errors/not-allowed'
 
 interface ListConsultationsUseCaseResponse {
-  consultations: Consultation[];
+  consultations: Consultation[]
 }
 
 interface ListConsultationUseCaseRequest {
-  authenticatedUserId: string;
+  userId: string
 }
 
 export class ListConsultationsUseCase {
   constructor(
     private consultationRepository: ConsultationRepository,
-    private usersRepository: UsersRepository
+    private usersRepository: UsersRepository,
   ) {}
 
   async execute({
-    authenticatedUserId,
+    userId,
   }: ListConsultationUseCaseRequest): Promise<ListConsultationsUseCaseResponse> {
-    const authenticatedUser =
-      await this.usersRepository.findById(authenticatedUserId);
+    const user = await this.usersRepository.findById(userId)
 
-    if (!authenticatedUser) {
-      throw new NotAuthorizedError();
+    if (!user) {
+      throw new ResourceNotFoundError()
     }
 
-    if (!authenticatedUser) {
-      throw new NotAuthorizedError();
+    if (user.role !== 'ADMIN') {
+      throw new NotAllowed()
     }
 
-    if (authenticatedUser.role === "ADMIN") {
-      const consultations = await this.consultationRepository.findMany();
-      return { consultations };
-    }
-
-    throw new NotAuthorizedError();
+    const consultations = await this.consultationRepository.findMany()
+    return { consultations }
   }
 }
-

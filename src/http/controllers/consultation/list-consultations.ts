@@ -1,10 +1,20 @@
 import { makeListConsultationsUseCase } from '@/use-cases/@factories/make-list-consultations-use-case'
 import { FastifyReply, FastifyRequest } from 'fastify'
+import { z } from 'zod'
 
-export async function listConsultations(request: FastifyRequest, reply: FastifyReply) {
+export const listConsultationsParamsSchema = z.object({
+  userId: z.string(),
+})
+
+export async function listConsultations(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const { userId } = listConsultationsParamsSchema.parse(request.params)
+  console.log('List consultations for user:', userId)
   const listConsultationsUseCase = makeListConsultationsUseCase()
   const { consultations } = await listConsultationsUseCase.execute({
-    authenticatedUserId: request.user.sub,
+    userId,
   })
 
   return reply.status(200).send({

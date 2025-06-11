@@ -4,9 +4,7 @@ import { PrismaConsultationRepository } from '@/repositories/prisma/prisma-consu
 export function makeListConsultationByClientUseCase() {
   const consultationRepository = new PrismaConsultationRepository()
 
-  const useCase = new ListConsultationByClientUseCase(
-    consultationRepository,
-  )
+  const useCase = new ListConsultationByClientUseCase(consultationRepository)
 
   return useCase
 }
