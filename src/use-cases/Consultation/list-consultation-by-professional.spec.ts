@@ -1,5 +1,5 @@
 import { expect, describe, it, beforeEach } from 'vitest'
-import { ListConsultationByProfessionalUseCase } from './list-consutation-by-professional'
+import { ListConsultationByProfessionalUseCase } from './list-consultation-by-professional'
 import { InMemoryConsultationRepository } from '@/repositories/in-memory/in-memory-consultation-repository'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-users-repository'
 import { InMemoryTreatmentsRepository } from '@/repositories/in-memory/in-memory-treatments-repository'
