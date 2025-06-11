@@ -18,9 +18,28 @@ import {
   listConsultationsByProfessional,
   listConsultationsByProfessionalParamsSchema,
 } from '../controllers/consultation/list-consultations-by-professional'
+import { listConsultations } from '../controllers/consultation/list-consultations'
+import { listConsultationsByClient, listConsultationsByClientParamsSchema } from '../controllers/consultation/list-consultations-by-client'
 
 export async function consultationsRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
+
+  app.get(
+    '/consultations',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Consultations'],
+        summary: 'List all consultations',
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    listConsultations,
+  )
 
   app.post(
     '/consultations',
@@ -93,5 +112,23 @@ export async function consultationsRoutes(appFastify: FastifyInstance) {
       },
     },
     listConsultationsByProfessional,
+  )
+
+  app.get(
+    '/clients/:clientId/consultations',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Consultations'],
+        summary: 'List consultations by client',
+        params: listConsultationsByClientParamsSchema,
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    listConsultationsByClient,
   )
 }

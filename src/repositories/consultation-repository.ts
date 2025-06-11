@@ -14,4 +14,5 @@ export interface ConsultationRepository {
     dateTime: Date,
   ): Promise<Consultation[]>
   findByProfessionalId(professionalId: string): Promise<Consultation[]>
+  findByClientId(clientId: string): Promise<Consultation[]>
 }
