@@ -85,4 +85,8 @@ export class InMemoryConsultationRepository implements ConsultationRepository {
   async findByProfessionalId(professionalId: string): Promise<Consultation[]> {
     return this.items.filter((item) => item.professionalId === professionalId)
   }
+
+  async findByClientId(clientId: string): Promise<Consultation[]> {
+    return this.items.filter((item) => item.clientId === clientId)
+  }
 }
