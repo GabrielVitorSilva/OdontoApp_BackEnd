@@ -18,9 +18,27 @@ import {
   listConsultationsByProfessional,
   listConsultationsByProfessionalParamsSchema,
 } from '../controllers/consultation/list-consultations-by-professional'
+import { listConsultations } from '../controllers/consultation/list-consultations'
 
 export async function consultationsRoutes(appFastify: FastifyInstance) {
   const app = appFastify.withTypeProvider<ZodTypeProvider>()
+
+  app.get(
+    '/consultations',
+    {
+      onRequest: [verifyJWT],
+      schema: {
+        tags: ['Consultations'],
+        summary: 'List all consultations',
+        security: [
+          {
+            bearerAuth: [],
+          },
+        ],
+      },
+    },
+    listConsultations,
+  )
 
   app.post(
     '/consultations',
