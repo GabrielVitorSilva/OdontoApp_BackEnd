@@ -12,8 +12,8 @@ let sut: ListConsultationByProfessionalUseCase
 
 describe('List Consultation By Professional Use Case', () => {
   beforeEach(() => {
-    consultationRepository = new InMemoryConsultationRepository()
     usersRepository = new InMemoryUsersRepository()
+    consultationRepository = new InMemoryConsultationRepository(usersRepository)
     treatmentsRepository = new InMemoryTreatmentsRepository()
     sut = new ListConsultationByProfessionalUseCase(consultationRepository)
   })
@@ -84,7 +84,7 @@ describe('List Consultation By Professional Use Case', () => {
 
     expect(consultations).toHaveLength(1)
     expect(consultations[0].id).toEqual(consultation.id)
-    expect(consultations[0].professionalId).toEqual(professional.id)
+    expect(consultations[0].professionalName).toEqual('Profissional Teste')
   })
 
   it('should be able to list empty array when professional has no consultations', async () => {

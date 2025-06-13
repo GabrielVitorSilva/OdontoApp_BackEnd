@@ -142,8 +142,65 @@ export class InMemoryConsultationRepository implements ConsultationRepository {
     )
   }
 
-  async findByProfessionalId(professionalId: string): Promise<Consultation[]> {
-    return this.items.filter((item) => item.professionalId === professionalId)
+  async findByProfessionalId(
+    professionalId: string,
+  ): Promise<ConsultationWithRelations[]> {
+    const consultations = this.items.filter(
+      (item) => item.professionalId === professionalId,
+    )
+
+    const consultationsWithRelations = await Promise.all(
+      consultations.map(async (consultation) => {
+        const client = await this.usersRepository.findClientById(
+          consultation.clientId,
+        )
+        const professional = await this.usersRepository.findProfessionalById(
+          consultation.professionalId,
+        )
+
+        if (!client || !professional) {
+          throw new Error('Client or professional not found')
+        }
+
+        const clientUser = await this.usersRepository.findById(client.userId)
+        const professionalUser = await this.usersRepository.findById(
+          professional.userId,
+        )
+
+        if (!clientUser || !professionalUser) {
+          throw new Error('User not found')
+        }
+
+        return {
+          ...consultation,
+          client: {
+            id: client.id,
+            userId: client.userId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            user: clientUser,
+          },
+          professional: {
+            id: professional.id,
+            userId: professional.userId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            user: professionalUser,
+          },
+          treatment: {
+            id: consultation.treatmentId,
+            name: 'Treatment ' + consultation.treatmentId.split('-')[1],
+            description: null,
+            durationMinutes: 60,
+            price: 100,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        }
+      }),
+    )
+
+    return consultationsWithRelations
   }
 
   async findByClientId(clientId: string): Promise<ConsultationWithRelations[]> {
