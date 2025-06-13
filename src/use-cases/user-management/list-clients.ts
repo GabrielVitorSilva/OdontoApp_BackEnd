@@ -33,8 +33,7 @@ export class ListClientsUseCase {
 
     const clients = await Promise.all(
       users.map(async (user) => {
-        const client =
-          await this.usersRepository.findClientByUserId(user.id)
+        const client = await this.usersRepository.findClientByUserId(user.id)
         return {
           ...user,
           clientId: client?.id ?? '',

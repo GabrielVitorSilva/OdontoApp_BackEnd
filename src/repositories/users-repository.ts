@@ -17,7 +17,7 @@ export interface UsersRepository {
   delete(id: string): Promise<void>
   findProfessionalByUserId(
     userId: string,
-  ): Promise<{ id: string; userId: string } | null>  
+  ): Promise<{ id: string; userId: string } | null>
   findClientByUserId(
     userId: string,
   ): Promise<{ id: string; userId: string } | null>
