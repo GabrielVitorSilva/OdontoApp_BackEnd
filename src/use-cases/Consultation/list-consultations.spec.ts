@@ -12,7 +12,7 @@ let sut: ListConsultationsUseCase
 describe('List Consultations Use Case', () => {
   beforeEach(() => {
     usersRepository = new InMemoryUsersRepository()
-    consultationRepository = new InMemoryConsultationRepository()
+    consultationRepository = new InMemoryConsultationRepository(usersRepository)
     sut = new ListConsultationsUseCase(consultationRepository, usersRepository)
   })
 
@@ -25,17 +25,58 @@ describe('List Consultations Use Case', () => {
       cpf: '12345678910',
     })
 
+    const client1 = await usersRepository.create({
+      name: 'Client One',
+      email: 'client1@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '11111111111',
+    })
+
+    const professional1 = await usersRepository.create({
+      name: 'Professional One',
+      email: 'professional1@example.com',
+      password: '123456',
+      role: 'PROFESSIONAL',
+      cpf: '22222222222',
+    })
+
+    const client2 = await usersRepository.create({
+      name: 'Client Two',
+      email: 'client2@example.com',
+      password: '123456',
+      role: 'CLIENT',
+      cpf: '33333333333',
+    })
+
+    const professional2 = await usersRepository.create({
+      name: 'Professional Two',
+      email: 'professional2@example.com',
+      password: '123456',
+      role: 'PROFESSIONAL',
+      cpf: '44444444444',
+    })
+
+    const client1Record = await usersRepository.createClient(client1.id)
+    const professional1Record = await usersRepository.createProfessional(
+      professional1.id,
+    )
+    const client2Record = await usersRepository.createClient(client2.id)
+    const professional2Record = await usersRepository.createProfessional(
+      professional2.id,
+    )
+
     const consultation1 = await consultationRepository.create({
       dateTime: new Date(),
       status: 'SCHEDULED',
       client: {
         connect: {
-          id: 'client-1',
+          id: client1Record.id,
         },
       },
       professional: {
         connect: {
-          id: 'professional-1',
+          id: professional1Record.id,
         },
       },
       treatment: {
@@ -50,12 +91,12 @@ describe('List Consultations Use Case', () => {
       status: 'COMPLETED',
       client: {
         connect: {
-          id: 'client-2',
+          id: client2Record.id,
         },
       },
       professional: {
         connect: {
-          id: 'professional-2',
+          id: professional2Record.id,
         },
       },
       treatment: {
@@ -73,10 +114,16 @@ describe('List Consultations Use Case', () => {
     expect(consultations).toEqual([
       expect.objectContaining({
         id: consultation1.id,
+        clientName: 'Client One',
+        professionalName: 'Professional One',
+        treatmentName: 'Treatment 1',
         status: 'SCHEDULED',
       }),
       expect.objectContaining({
         id: consultation2.id,
+        clientName: 'Client Two',
+        professionalName: 'Professional Two',
+        treatmentName: 'Treatment 2',
         status: 'COMPLETED',
       }),
     ])

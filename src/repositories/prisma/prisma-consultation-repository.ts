@@ -1,6 +1,9 @@
 import { prisma } from '@/lib/prisma'
 import { Prisma, type Consultation } from '@prisma/client'
-import type { ConsultationRepository } from '../consultation-repository'
+import type {
+  ConsultationRepository,
+  ConsultationWithRelations,
+} from '../consultation-repository'
 
 export class PrismaConsultationRepository implements ConsultationRepository {
   async findById(id: string) {
@@ -13,9 +16,23 @@ export class PrismaConsultationRepository implements ConsultationRepository {
     return consultation
   }
 
-  async findMany(): Promise<Consultation[]> {
-    const users = await prisma.consultation.findMany()
-    return users
+  async findMany(): Promise<ConsultationWithRelations[]> {
+    const consultations = await prisma.consultation.findMany({
+      include: {
+        client: {
+          include: {
+            user: true,
+          },
+        },
+        professional: {
+          include: {
+            user: true,
+          },
+        },
+        treatment: true,
+      },
+    })
+    return consultations
   }
 
   async create(data: Prisma.ConsultationCreateInput): Promise<Consultation> {

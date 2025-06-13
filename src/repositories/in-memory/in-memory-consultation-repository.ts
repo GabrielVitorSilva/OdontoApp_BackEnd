@@ -1,9 +1,18 @@
-import { ConsultationRepository } from '../consultation-repository'
+import {
+  ConsultationRepository,
+  ConsultationWithRelations,
+} from '../consultation-repository'
 import { Consultation, Prisma, ConsultationStatus } from '@prisma/client'
 import { randomUUID } from 'node:crypto'
+import { UsersRepository } from '../users-repository'
 
 export class InMemoryConsultationRepository implements ConsultationRepository {
   public items: Consultation[] = []
+  public usersRepository: UsersRepository
+
+  constructor(usersRepository: UsersRepository) {
+    this.usersRepository = usersRepository
+  }
 
   async findById(id: string): Promise<Consultation | null> {
     const consultation = this.items.find((item) => item.id === id)
@@ -15,8 +24,59 @@ export class InMemoryConsultationRepository implements ConsultationRepository {
     return consultation
   }
 
-  async findMany(): Promise<Consultation[]> {
-    return this.items
+  async findMany(): Promise<ConsultationWithRelations[]> {
+    const consultations = await Promise.all(
+      this.items.map(async (consultation) => {
+        const client = await this.usersRepository.findClientById(
+          consultation.clientId,
+        )
+        const professional = await this.usersRepository.findProfessionalById(
+          consultation.professionalId,
+        )
+
+        if (!client || !professional) {
+          throw new Error('Client or professional not found')
+        }
+
+        const clientUser = await this.usersRepository.findById(client.userId)
+        const professionalUser = await this.usersRepository.findById(
+          professional.userId,
+        )
+
+        if (!clientUser || !professionalUser) {
+          throw new Error('User not found')
+        }
+
+        return {
+          ...consultation,
+          client: {
+            id: client.id,
+            userId: client.userId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            user: clientUser,
+          },
+          professional: {
+            id: professional.id,
+            userId: professional.userId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            user: professionalUser,
+          },
+          treatment: {
+            id: consultation.treatmentId,
+            name: 'Treatment ' + consultation.treatmentId.split('-')[1],
+            description: null,
+            durationMinutes: 60,
+            price: 100,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        }
+      }),
+    )
+
+    return consultations
   }
 
   async create(data: Prisma.ConsultationCreateInput): Promise<Consultation> {

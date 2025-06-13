@@ -1,11 +1,21 @@
 import { ConsultationRepository } from '@/repositories/consultation-repository'
-import { Consultation } from '@prisma/client'
 import { UsersRepository } from '@/repositories/users-repository'
 import { ResourceNotFoundError } from '../@errors/resource-not-found'
 import { NotAllowed } from '../@errors/not-allowed'
 
+interface FormattedConsultation {
+  id: string
+  clientName: string
+  professionalName: string
+  treatmentName: string
+  dateTime: Date
+  status: string
+  createdAt: Date
+  updatedAt: Date
+}
+
 interface ListConsultationsUseCaseResponse {
-  consultations: Consultation[]
+  consultations: FormattedConsultation[]
 }
 
 interface ListConsultationUseCaseRequest {
@@ -32,6 +42,18 @@ export class ListConsultationsUseCase {
     }
 
     const consultations = await this.consultationRepository.findMany()
-    return { consultations }
+
+    const formattedConsultations = consultations.map((consultation) => ({
+      id: consultation.id,
+      clientName: consultation.client.user.name,
+      professionalName: consultation.professional.user.name,
+      treatmentName: consultation.treatment.name,
+      dateTime: consultation.dateTime,
+      status: consultation.status,
+      createdAt: consultation.createdAt,
+      updatedAt: consultation.updatedAt,
+    }))
+
+    return { consultations: formattedConsultations }
   }
 }
