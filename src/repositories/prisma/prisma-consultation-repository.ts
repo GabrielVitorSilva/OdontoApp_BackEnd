@@ -95,12 +95,22 @@ export class PrismaConsultationRepository implements ConsultationRepository {
     return consultations
   }
 
-  async findByClientId(clientId: string): Promise<Consultation[]> {
+  async findByClientId(clientId: string): Promise<ConsultationWithRelations[]> {
     const consultations = await prisma.consultation.findMany({
       where: {
         clientId,
       },
       include: {
+        client: {
+          include: {
+            user: true,
+          },
+        },
+        professional: {
+          include: {
+            user: true,
+          },
+        },
         treatment: true,
       },
     })

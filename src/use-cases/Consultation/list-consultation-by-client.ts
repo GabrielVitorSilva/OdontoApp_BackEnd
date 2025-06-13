@@ -1,12 +1,22 @@
 import type { ConsultationRepository } from '@/repositories/consultation-repository'
-import { Consultation } from '@prisma/client'
+
+interface FormattedConsultation {
+  id: string
+  clientName: string
+  professionalName: string
+  treatmentName: string
+  dateTime: Date
+  status: string
+  createdAt: Date
+  updatedAt: Date
+}
 
 interface ListConsultationByClientUseCaseRequest {
   clientId: string
 }
 
 interface ListConsultationByClientUseCaseResponse {
-  consultations: Consultation[]
+  consultations: FormattedConsultation[]
 }
 
 export class ListConsultationByClientUseCase {
@@ -18,6 +28,17 @@ export class ListConsultationByClientUseCase {
     const consultations =
       await this.consultationRepository.findByClientId(clientId)
 
-    return { consultations }
+    const formattedConsultations = consultations.map((consultation) => ({
+      id: consultation.id,
+      clientName: consultation.client.user.name,
+      professionalName: consultation.professional.user.name,
+      treatmentName: consultation.treatment.name,
+      dateTime: consultation.dateTime,
+      status: consultation.status,
+      createdAt: consultation.createdAt,
+      updatedAt: consultation.updatedAt,
+    }))
+
+    return { consultations: formattedConsultations }
   }
 }
