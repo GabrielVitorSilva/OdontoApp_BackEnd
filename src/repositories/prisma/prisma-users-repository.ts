@@ -112,24 +112,42 @@ export class PrismaUsersRepository implements UsersRepository {
     return admin
   }
 
-  async findProfessionalByUserId(
-    userId: string,
-  ): Promise<{ id: string; userId: string } | null> {
+  async findProfessionalByUserId(userId: string): Promise<{
+    id: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+  } | null> {
     const professional = await prisma.professional.findUnique({
       where: {
         userId,
+      },
+      select: {
+        id: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
       },
     })
 
     return professional
   }
 
-  async findClientByUserId(
-    userId: string,
-  ): Promise<{ id: string; userId: string } | null> {
+  async findClientByUserId(userId: string): Promise<{
+    id: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+  } | null> {
     const client = await prisma.client.findUnique({
       where: {
         userId,
+      },
+      select: {
+        id: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
       },
     })
 
@@ -158,5 +176,26 @@ export class PrismaUsersRepository implements UsersRepository {
     })
 
     return professional
+  }
+
+  async findAdmByUserId(userId: string): Promise<{
+    id: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+  } | null> {
+    const admin = await prisma.administrator.findUnique({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+
+    return admin
   }
 }

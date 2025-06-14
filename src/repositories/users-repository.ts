@@ -15,12 +15,24 @@ export interface UsersRepository {
   createAdmin(userId: string): Promise<{ id: string; userId: string }>
   update(id: string, data: Prisma.UserUpdateInput): Promise<User>
   delete(id: string): Promise<void>
-  findProfessionalByUserId(
-    userId: string,
-  ): Promise<{ id: string; userId: string } | null>
-  findClientByUserId(
-    userId: string,
-  ): Promise<{ id: string; userId: string } | null>
+  findAdmByUserId(userId: string): Promise<{
+    id: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+  } | null>
+  findProfessionalByUserId(userId: string): Promise<{
+    id: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+  } | null>
+  findClientByUserId(userId: string): Promise<{
+    id: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+  } | null>
   findClientById(id: string): Promise<{ id: string; userId: string } | null>
   findProfessionalById(
     id: string,

@@ -1,5 +1,5 @@
 import { UsersRepository } from '@/repositories/users-repository'
-import { User } from '@prisma/client'
+import { User, Administrator, Professional, Client } from '@prisma/client'
 import { ResourceNotFoundError } from '../@errors/resource-not-found-error'
 import { NotAuthorizedError } from '../@errors/not-authorized-error'
 
@@ -9,7 +9,10 @@ interface GetUserUseCaseRequest {
 }
 
 interface GetUserUseCaseResponse {
-  user: User
+  user: {
+    User: User
+    profileData: Administrator | Professional | Client
+  }
 }
 
 export class GetUserUseCase {
@@ -33,21 +36,39 @@ export class GetUserUseCase {
     }
 
     if (authenticatedUser.role === 'ADMIN') {
-      return { user }
+      const profileData = await this.usersRepository.findAdmByUserId(
+        authenticatedUser.id,
+      )
+
+      if (!profileData) {
+        throw new ResourceNotFoundError()
+      }
+
+      return { user: { User: user, profileData } }
     }
 
     if (authenticatedUser.role === 'PROFESSIONAL') {
-      if (user.role === 'CLIENT') {
-        return { user }
+      const profileData = await this.usersRepository.findProfessionalByUserId(
+        authenticatedUser.id,
+      )
+
+      if (!profileData) {
+        throw new ResourceNotFoundError()
       }
-      throw new NotAuthorizedError()
+
+      return { user: { User: user, profileData } }
     }
 
     if (authenticatedUser.role === 'CLIENT') {
-      if (authenticatedUserId === id) {
-        return { user }
+      const profileData = await this.usersRepository.findClientByUserId(
+        authenticatedUser.id,
+      )
+
+      if (!profileData) {
+        throw new ResourceNotFoundError()
       }
-      throw new NotAuthorizedError()
+
+      return { user: { User: user, profileData } }
     }
 
     throw new NotAuthorizedError()
