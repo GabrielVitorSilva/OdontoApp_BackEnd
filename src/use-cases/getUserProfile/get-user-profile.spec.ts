@@ -21,18 +21,19 @@ describe('Get User Profile Use Case', () => {
       role: 'ADMIN',
       cpf: '123.456.789-12',
     })
+    await usersRepository.createAdmin(createdUser.id)
 
     const { user } = await sut.execute({
-      userId: createdUser.id,
+      id: createdUser.id,
     })
 
-    expect(user.name).toEqual('John Doe')
+    expect(user.User.name).toEqual('John Doe')
   })
 
   it('should not be able to get user profile with wrong id', async () => {
     await expect(() =>
       sut.execute({
-        userId: 'non-existing-id',
+        id: 'non-existing-id',
       }),
     ).rejects.toBeInstanceOf(ResourceNotFoundError)
   })
