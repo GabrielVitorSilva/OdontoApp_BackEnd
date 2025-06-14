@@ -48,10 +48,9 @@ export class GetUserUseCase {
     }
 
     if (authenticatedUser.role === 'PROFESSIONAL') {
-      if (user.role !== 'CLIENT') {
-        throw new NotAuthorizedError()
-      }
-      const profileData = await this.usersRepository.findClientByUserId(user.id)
+      const profileData = await this.usersRepository.findProfessionalByUserId(
+        user.id,
+      )
       if (!profileData) {
         throw new ResourceNotFoundError()
       }
