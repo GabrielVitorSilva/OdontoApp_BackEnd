@@ -22,6 +22,8 @@ describe('Get User Use Case', () => {
       cpf: '12345678910',
     })
 
+    await usersRepository.createAdmin(admin.id)
+
     const client = await usersRepository.create({
       name: 'John Doe',
       email: 'johndoe@example.com',
@@ -30,6 +32,8 @@ describe('Get User Use Case', () => {
       cpf: '98765432109',
     })
 
+    await usersRepository.createClient(client.id)
+
     const professional = await usersRepository.create({
       name: 'Jane Doe',
       email: 'janedoe@example.com',
@@ -37,6 +41,8 @@ describe('Get User Use Case', () => {
       role: 'PROFESSIONAL',
       cpf: '45678912301',
     })
+
+    await usersRepository.createProfessional(professional.id)
 
     const { user: clientUser } = await sut.execute({
       id: client.id,
@@ -48,7 +54,7 @@ describe('Get User Use Case', () => {
       authenticatedUserId: admin.id,
     })
 
-    expect(clientUser).toEqual(
+    expect(clientUser.User).toEqual(
       expect.objectContaining({
         name: 'John Doe',
         email: 'johndoe@example.com',
@@ -56,7 +62,7 @@ describe('Get User Use Case', () => {
       }),
     )
 
-    expect(professionalUser).toEqual(
+    expect(professionalUser.User).toEqual(
       expect.objectContaining({
         name: 'Jane Doe',
         email: 'janedoe@example.com',
@@ -74,6 +80,8 @@ describe('Get User Use Case', () => {
       cpf: '45678912301',
     })
 
+    await usersRepository.createProfessional(professional.id)
+
     const client = await usersRepository.create({
       name: 'John Doe',
       email: 'johndoe@example.com',
@@ -82,12 +90,14 @@ describe('Get User Use Case', () => {
       cpf: '98765432109',
     })
 
+    await usersRepository.createClient(client.id)
+
     const { user: clientUser } = await sut.execute({
       id: client.id,
       authenticatedUserId: professional.id,
     })
 
-    expect(clientUser).toEqual(
+    expect(clientUser.User).toEqual(
       expect.objectContaining({
         name: 'John Doe',
         email: 'johndoe@example.com',
@@ -112,6 +122,8 @@ describe('Get User Use Case', () => {
       cpf: '98765432109',
     })
 
+    await usersRepository.createClient(client.id)
+
     const otherClient = await usersRepository.create({
       name: 'Jane Doe',
       email: 'janedoe@example.com',
@@ -120,12 +132,14 @@ describe('Get User Use Case', () => {
       cpf: '45678912301',
     })
 
+    await usersRepository.createClient(otherClient.id)
+
     const { user: selfUser } = await sut.execute({
       id: client.id,
       authenticatedUserId: client.id,
     })
 
-    expect(selfUser).toEqual(
+    expect(selfUser.User).toEqual(
       expect.objectContaining({
         name: 'John Doe',
         email: 'johndoe@example.com',
@@ -149,6 +163,8 @@ describe('Get User Use Case', () => {
       role: 'ADMIN',
       cpf: '12345678910',
     })
+
+    await usersRepository.createAdmin(admin.id)
 
     await expect(() =>
       sut.execute({

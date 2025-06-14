@@ -152,9 +152,12 @@ export class InMemoryUsersRepository implements UsersRepository {
     this.items.splice(userIndex, 1)
   }
 
-  async findProfessionalByUserId(
-    userId: string,
-  ): Promise<{ id: string; userId: string } | null> {
+  async findProfessionalByUserId(userId: string): Promise<{
+    id: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+  } | null> {
     const professional = this.professionals.find(
       (item) => item.userId === userId,
     )
@@ -163,19 +166,30 @@ export class InMemoryUsersRepository implements UsersRepository {
       return null
     }
 
-    return professional
+    return {
+      ...professional,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
   }
 
-  async findClientByUserId(
-    userId: string,
-  ): Promise<{ id: string; userId: string } | null> {
+  async findClientByUserId(userId: string): Promise<{
+    id: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+  } | null> {
     const client = this.clients.find((item) => item.userId === userId)
 
     if (!client) {
       return null
     }
 
-    return client
+    return {
+      ...client,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
   }
 
   async findClientById(
@@ -200,5 +214,24 @@ export class InMemoryUsersRepository implements UsersRepository {
     }
 
     return professional
+  }
+
+  async findAdmByUserId(userId: string): Promise<{
+    id: string
+    userId: string
+    createdAt: Date
+    updatedAt: Date
+  } | null> {
+    const admin = this.admins.find((item) => item.userId === userId)
+
+    if (!admin) {
+      return null
+    }
+
+    return {
+      ...admin,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
   }
 }

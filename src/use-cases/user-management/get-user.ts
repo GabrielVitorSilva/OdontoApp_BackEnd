@@ -48,26 +48,24 @@ export class GetUserUseCase {
     }
 
     if (authenticatedUser.role === 'PROFESSIONAL') {
-      const profileData = await this.usersRepository.findProfessionalByUserId(
-        authenticatedUser.id,
-      )
-
+      if (user.role !== 'CLIENT') {
+        throw new NotAuthorizedError()
+      }
+      const profileData = await this.usersRepository.findClientByUserId(user.id)
       if (!profileData) {
         throw new ResourceNotFoundError()
       }
-
       return { user: { User: user, profileData } }
     }
 
     if (authenticatedUser.role === 'CLIENT') {
-      const profileData = await this.usersRepository.findClientByUserId(
-        authenticatedUser.id,
-      )
-
+      if (authenticatedUserId !== id) {
+        throw new NotAuthorizedError()
+      }
+      const profileData = await this.usersRepository.findClientByUserId(user.id)
       if (!profileData) {
         throw new ResourceNotFoundError()
       }
-
       return { user: { User: user, profileData } }
     }
 
