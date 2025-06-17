@@ -15,7 +15,7 @@ let treatmentsRepository: InMemoryTreatmentsRepository
 let sut: CreateConsultationUseCase
 
 describe('Create Consultation Use Case', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     consultationRepository = new InMemoryConsultationRepository()
     usersRepository = new InMemoryUsersRepository()
     treatmentsRepository = new InMemoryTreatmentsRepository()
