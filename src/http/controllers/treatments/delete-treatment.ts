@@ -1,4 +1,5 @@
 import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found-error'
+import { ResourceHasDependenciesError } from '@/use-cases/@errors/resource-has-dependencies-error'
 import { makeDeleteTreatmentUseCase } from '@/use-cases/@factories/make-delete-treatment-use-case'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
@@ -24,6 +25,10 @@ export async function deleteTreatment(
   } catch (error) {
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send({ message: error.message })
+    }
+
+    if (error instanceof ResourceHasDependenciesError) {
+      return reply.status(409).send({ message: error.message })
     }
 
     console.error(error)
