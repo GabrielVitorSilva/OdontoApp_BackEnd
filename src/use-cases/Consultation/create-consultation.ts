@@ -4,7 +4,6 @@ import type { UsersRepository } from '@/repositories/users-repository'
 import { Consultation } from '@prisma/client'
 import { ResourceNotFoundError } from '../@errors/resource-not-found-error'
 import { InvalidConsultationDateError } from '../@errors/invalid-consultation-date-error'
-import { ProfessionalNotLinkedToTreatmentError } from '../@errors/professional-not-linked-to-treatment-error'
 import { ConsultationTimeConflictError } from '../@errors/consultation-time-conflict-error'
 import { sendMail } from '@/lib/mail'
 import { generateConsultationConfirmationEmail } from '@/lib/templates/consultation-confirmation'
@@ -79,7 +78,10 @@ export class CreateConsultationUseCase {
     )
 
     if (!isProfessionalLinkedToTreatment) {
-      throw new ProfessionalNotLinkedToTreatmentError()
+      await this.treatmentsRepository.addProfessional(
+        treatmentId,
+        professionalId,
+      )
     }
 
     const existingConsultations =

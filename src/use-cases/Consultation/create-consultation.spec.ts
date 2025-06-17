@@ -5,7 +5,6 @@ import { InMemoryUsersRepository } from '@/repositories/in-memory/in-memory-user
 import { InMemoryTreatmentsRepository } from '@/repositories/in-memory/in-memory-treatments-repository'
 import { ResourceNotFoundError } from '../@errors/resource-not-found-error'
 import { InvalidConsultationDateError } from '../@errors/invalid-consultation-date-error'
-import { ProfessionalNotLinkedToTreatmentError } from '../@errors/professional-not-linked-to-treatment-error'
 import { ConsultationTimeConflictError } from '../@errors/consultation-time-conflict-error'
 import { randomUUID } from 'node:crypto'
 
@@ -247,7 +246,7 @@ describe('Create Consultation Use Case', () => {
     ).rejects.toBeInstanceOf(ResourceNotFoundError)
   })
 
-  it('should not be able to create a consultation with professional not linked to treatment', async () => {
+  it('should automatically link professional to treatment if not linked', async () => {
     const clientUser = await usersRepository.create({
       name: 'Cliente Teste',
       email: 'cliente@teste.com',
@@ -298,16 +297,26 @@ describe('Create Consultation Use Case', () => {
     futureDate.setDate(futureDate.getDate() + 1) // Amanhã
     futureDate.setHours(10, 0, 0, 0) // 10:00
 
-    await expect(() =>
-      sut.execute({
-        id: randomUUID(),
-        clientId: client.id,
-        professionalId: anotherProfessional.id,
-        treatmentId: treatment.id,
-        dateTime: futureDate,
-        status: 'SCHEDULED',
-      }),
-    ).rejects.toBeInstanceOf(ProfessionalNotLinkedToTreatmentError)
+    const { consultation } = await sut.execute({
+      id: randomUUID(),
+      clientId: client.id,
+      professionalId: anotherProfessional.id,
+      treatmentId: treatment.id,
+      dateTime: futureDate,
+      status: 'SCHEDULED',
+    })
+
+    const treatmentsByProfessional =
+      await treatmentsRepository.findByProfessionalId(anotherProfessional.id)
+
+    expect(consultation.id).toEqual(expect.any(String))
+    expect(consultation.clientId).toBe(client.id)
+    expect(consultation.professionalId).toBe(anotherProfessional.id)
+    expect(consultation.treatmentId).toBe(treatment.id)
+    expect(consultation.dateTime).toEqual(futureDate)
+    expect(consultation.status).toBe('SCHEDULED')
+    expect(treatmentsByProfessional).toHaveLength(1)
+    expect(treatmentsByProfessional[0].id).toBe(treatment.id)
   })
 
   it('should not be able to create a consultation with time conflict', async () => {
