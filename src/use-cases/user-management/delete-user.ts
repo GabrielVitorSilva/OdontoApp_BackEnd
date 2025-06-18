@@ -1,6 +1,8 @@
 import { UsersRepository } from '@/repositories/users-repository'
 import { ResourceNotFoundError } from '../@errors/resource-not-found-error'
 import { NotAuthorizedError } from '../@errors/not-authorized-error'
+import { ResourceHasDependenciesError } from '../@errors/resource-has-dependencies-error'
+import { Prisma } from '@prisma/client'
 
 interface DeleteUserUseCaseRequest {
   id: string
@@ -28,22 +30,49 @@ export class DeleteUserUseCase {
     }
 
     if (authenticatedUser.role === 'ADMIN') {
-      await this.usersRepository.delete(id)
-      return
+      try {
+        await this.usersRepository.delete(id)
+        return
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2003') {
+            throw new ResourceHasDependenciesError('usuário')
+          }
+        }
+        throw error
+      }
     }
 
     if (authenticatedUser.role === 'PROFESSIONAL') {
       if (userToDelete.role === 'CLIENT' || authenticatedUserId === id) {
-        await this.usersRepository.delete(id)
-        return
+        try {
+          await this.usersRepository.delete(id)
+          return
+        } catch (error) {
+          if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === 'P2003') {
+              throw new ResourceHasDependenciesError('usuário')
+            }
+          }
+          throw error
+        }
       }
       throw new NotAuthorizedError()
     }
 
     if (authenticatedUser.role === 'CLIENT') {
       if (authenticatedUserId === id) {
-        await this.usersRepository.delete(id)
-        return
+        try {
+          await this.usersRepository.delete(id)
+          return
+        } catch (error) {
+          if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === 'P2003') {
+              throw new ResourceHasDependenciesError('usuário')
+            }
+          }
+          throw error
+        }
       }
       throw new NotAuthorizedError()
     }
