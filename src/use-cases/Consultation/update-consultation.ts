@@ -5,7 +5,7 @@ import { Consultation } from '@prisma/client'
 import { ResourceNotFoundError } from '../@errors/resource-not-found-error'
 import { InvalidConsultationDateError } from '../@errors/invalid-consultation-date-error'
 import { ProfessionalNotLinkedToTreatmentError } from '../@errors/professional-not-linked-to-treatment-error'
-import { ConsultationTimeConflictError } from '../@errors/consultation-time-conflict-error'
+// import { ConsultationTimeConflictError } from '../@errors/consultation-time-conflict-error'
 import { InvalidConsultationStatusError } from '../@errors/invalid-consultation-status-error'
 import { sendMail } from '@/lib/mail'
 import { generateConsultationUpdateEmail } from '@/lib/templates/consultation-update'
@@ -52,34 +52,34 @@ export class UpdateConsultationUseCase {
       throw new InvalidConsultationDateError()
     }
 
-    if (
-      dateTime &&
-      dateTime.getTime() === existingConsultation.dateTime.getTime()
-    ) {
-      throw new ConsultationTimeConflictError()
-    }
+    // if (
+    //   dateTime &&
+    //   dateTime.getTime() === existingConsultation.dateTime.getTime()
+    // ) {
+    //   throw new ConsultationTimeConflictError()
+    // }
 
     if (dateTime && dateTime <= new Date()) {
       throw new InvalidConsultationDateError()
     }
 
-    if (dateTime) {
-      const professionalIdToCheck =
-        professionalId || existingConsultation.professionalId
-      const existingConsultations =
-        await this.consultationRepository.findByProfessionalAndDateTime(
-          professionalIdToCheck,
-          dateTime,
-        )
+    // if (dateTime) {
+    //   const professionalIdToCheck =
+    //     professionalId || existingConsultation.professionalId
+    //   const existingConsultations =
+    //     await this.consultationRepository.findByProfessionalAndDateTime(
+    //       professionalIdToCheck,
+    //       dateTime,
+    //     )
 
-      const hasConflict = existingConsultations.some(
-        (consultation) => consultation.id !== id,
-      )
+    //   // const hasConflict = existingConsultations.some(
+    //   //   (consultation) => consultation.id !== id,
+    //   // )
 
-      if (hasConflict) {
-        throw new ConsultationTimeConflictError()
-      }
-    }
+    //   // if (hasConflict) {
+    //   //   throw new ConsultationTimeConflictError()
+    //   // }
+    // }
 
     if (clientId) {
       const client = await this.usersRepository.findClientById(clientId)
