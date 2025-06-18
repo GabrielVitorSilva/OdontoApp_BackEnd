@@ -47,8 +47,6 @@ export class PrismaUsersRepository implements UsersRepository {
       where: { id },
       data,
     })
-    console.log('Updated User:', user)
-    console.log('Update Data:', id)
     return user
   }
 

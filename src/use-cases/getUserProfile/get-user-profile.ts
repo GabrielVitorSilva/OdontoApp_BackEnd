@@ -24,7 +24,6 @@ export class GetUserProfileUseCase {
   async execute({
     id,
   }: GetUserProfileUseCaseRequest): Promise<GetUserProfileUseCaseResponse> {
-    console.log('GetUserProfileUseCase executed with id:', id)
     const user = await this.usersRepository.findById(id)
 
     if (!user) {
