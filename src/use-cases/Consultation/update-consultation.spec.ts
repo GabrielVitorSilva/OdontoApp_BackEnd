@@ -853,7 +853,7 @@ describe('Update Consultation Use Case', () => {
     expect(updatedConsultation.status).toBe('CANCELED')
   })
 
-  it('should not be able to update a consultation to the same date and time', async () => {
+  it('should be able to update a consultation keeping the same date and time', async () => {
     const clientUser = await usersRepository.create({
       name: 'Cliente Teste',
       email: 'cliente@teste.com',
@@ -913,11 +913,12 @@ describe('Update Consultation Use Case', () => {
       status: 'SCHEDULED',
     })
 
-    await expect(() =>
-      sut.execute({
-        id: consultation.id,
-        dateTime: futureDate,
-      }),
-    ).rejects.toBeInstanceOf(ConsultationTimeConflictError)
+    const result = await sut.execute({
+      id: consultation.id,
+      dateTime: futureDate,
+    })
+
+    expect(result.consultation.id).toBe(consultation.id)
+    expect(result.consultation.dateTime.getTime()).toBe(futureDate.getTime())
   })
 })

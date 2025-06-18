@@ -47,11 +47,26 @@ export class PrismaUsersRepository implements UsersRepository {
       where: { id },
       data,
     })
-
+    console.log('Updated User:', user)
+    console.log('Update Data:', id)
     return user
   }
 
   async delete(id: string): Promise<void> {
+    // Primeiro, deleta os registros relacionados
+    await prisma.client.deleteMany({
+      where: { userId: id },
+    })
+
+    await prisma.professional.deleteMany({
+      where: { userId: id },
+    })
+
+    await prisma.administrator.deleteMany({
+      where: { userId: id },
+    })
+
+    // Depois, deleta o usuário
     await prisma.user.delete({
       where: { id },
     })

@@ -11,7 +11,7 @@ export const deleteUserParamsSchema = z.object({
 export async function deleteUser(request: FastifyRequest, reply: FastifyReply) {
   const { id } = deleteUserParamsSchema.parse(request.params)
   const authenticatedUserId = request.user.sub
-
+  console.log('Authenticated User ID:', authenticatedUserId)
   try {
     const deleteUserUseCase = makeDeleteUserUseCase()
     await deleteUserUseCase.execute({
@@ -21,6 +21,7 @@ export async function deleteUser(request: FastifyRequest, reply: FastifyReply) {
 
     return reply.status(204).send()
   } catch (error) {
+    console.error(error)
     if (error instanceof ResourceNotFoundError) {
       return reply.status(404).send({ message: error.message })
     }
