@@ -4,7 +4,7 @@ import { makeUpdateConsultationUseCase } from '@/use-cases/@factories/make-updat
 import { ResourceNotFoundError } from '@/use-cases/@errors/resource-not-found-error'
 import { InvalidConsultationDateError } from '@/use-cases/@errors/invalid-consultation-date-error'
 import { ProfessionalNotLinkedToTreatmentError } from '@/use-cases/@errors/professional-not-linked-to-treatment-error'
-import { ConsultationTimeConflictError } from '@/use-cases/@errors/consultation-time-conflict-error'
+// import { ConsultationTimeConflictError } from '@/use-cases/@errors/consultation-time-conflict-error'
 import { InvalidConsultationStatusError } from '@/use-cases/@errors/invalid-consultation-status-error'
 
 export const updateConsultationParamsSchema = z.object({
@@ -60,9 +60,9 @@ export async function updateConsultation(
       return reply.status(400).send({ message: error.message })
     }
 
-    if (error instanceof ConsultationTimeConflictError) {
-      return reply.status(409).send({ message: error.message })
-    }
+    // if (error instanceof ConsultationTimeConflictError) {
+    //   return reply.status(409).send({ message: error.message })
+    // }
 
     if (error instanceof InvalidConsultationStatusError) {
       return reply.status(400).send({ message: error.message })
