@@ -1,8 +1,9 @@
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
+
 import { StatisticsRepository } from '../statistics-repository'
 
 export class PrismaStatisticsRepository implements StatisticsRepository {
-  constructor(private prisma: PrismaClient) {}
+  constructor() {}
 
   async getStatistics() {
     const [
@@ -11,14 +12,14 @@ export class PrismaStatisticsRepository implements StatisticsRepository {
       totalTreatments,
       consultationsWithPrices,
     ] = await Promise.all([
-      this.prisma.consultation.count({
+      prisma.consultation.count({
         where: {
           status: 'SCHEDULED',
         },
       }),
-      this.prisma.client.count(),
-      this.prisma.treatment.count(),
-      this.prisma.consultation.findMany({
+      prisma.client.count(),
+      prisma.treatment.count(),
+      prisma.consultation.findMany({
         include: {
           treatment: true,
         },
